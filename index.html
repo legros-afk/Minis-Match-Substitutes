@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Minis Subs</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: 'Inter', sans-serif; background: #0f172a; color: #f1f5f9; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
+button { cursor: pointer; border: none; font-family: inherit; }
+input  { font-family: inherit; }
+
+/* ── Tokens ── */
+:root {
+  --bg:         #0f172a;
+  --surface:    #1e293b;
+  --surface2:   #334155;
+  --border:     #475569;
+  --green:      #22c55e;
+  --green-dim:  #15803d;
+  --green-bg:   #052e16;
+  --grey:       #94a3b8;
+  --red:        #ef4444;
+  --red-dim:    #b91c1c;
+  --red-bg:     #450a0a;
+  --orange:     #f97316;
+  --orange-bg:  #431407;
+  --yellow:     #fbbf24;
+  --blue:       #60a5fa;
+  --blue-bg:    #172554;
+  --text:       #f1f5f9;
+  --text-dim:   #94a3b8;
+}
+
+/* ── Screen switching ── */
+.screen { display: none; }
+.screen.active { display: flex; flex-direction: column; min-height: 100dvh; }
+
+/* ════════════════════════════════════
+   SETUP SCREEN
+════════════════════════════════════ */
+#setup-screen { padding: 16px; gap: 12px; }
+
+.setup-header { text-align: center; padding: 16px 0 8px; }
+.setup-header h1 { font-size: 1.7rem; font-weight: 900; letter-spacing: -0.02em; }
+.setup-header p  { color: var(--text-dim); font-size: 0.85rem; margin-top: 4px; }
+
+.card { background: var(--surface); border-radius: 14px; padding: 16px; }
+.card-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.09em; color: var(--text-dim); margin-bottom: 14px; }
+
+/* Config row */
+.cfg-row { display: flex; gap: 10px; }
+.cfg-field { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+.cfg-field label { font-size: 0.72rem; color: var(--text-dim); font-weight: 600; }
+.cfg-field input {
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+  border-radius: 8px; padding: 10px 8px; font-size: 1rem; font-weight: 700;
+  text-align: center; width: 100%;
+}
+.cfg-field input:focus { outline: none; border-color: var(--blue); }
+#half-info { text-align: center; font-size: 0.72rem; color: var(--text-dim); margin-top: 10px; }
+
+/* Add player row */
+.add-row { display: flex; gap: 8px; align-items: stretch; }
+.add-row input[type=text] {
+  flex: 1; background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); border-radius: 8px; padding: 12px; font-size: 1rem;
+}
+.add-row input[type=text]::placeholder { color: var(--text-dim); }
+.add-row input[type=text]:focus { outline: none; border-color: var(--blue); }
+
+.status-toggle { display: flex; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+.status-toggle button {
+  padding: 0 12px; font-size: 0.75rem; font-weight: 700;
+  background: transparent; color: var(--text-dim); white-space: nowrap;
+  transition: background 0.12s, color 0.12s;
+}
+.status-toggle button.sel-start { background: var(--green); color: #000; }
+.status-toggle button.sel-sub   { background: var(--surface2); color: var(--text); }
+
+.btn-add-player {
+  background: var(--blue); color: #fff; border-radius: 8px;
+  padding: 0 16px; font-size: 0.9rem; font-weight: 700;
+}
+.btn-add-player:disabled { opacity: 0.4; }
+
+/* Player list */
+.player-list { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+.pli {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface2); border-radius: 8px; padding: 8px 10px;
+}
+.pli-name { flex: 1; font-size: 0.95rem; font-weight: 600; }
+.pill {
+  font-size: 0.62rem; font-weight: 800; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 99px; letter-spacing: 0.04em;
+}
+.pill-start { background: var(--green);  color: #000; }
+.pill-sub   { background: var(--border); color: var(--text); }
+.btn-remove { background: transparent; color: var(--red); font-size: 1.1rem; padding: 2px 6px; }
+
+#setup-status { font-size: 0.8rem; text-align: center; margin-top: 10px; color: var(--text-dim); }
+#setup-status.ok  { color: var(--green); }
+#setup-status.err { color: var(--red); }
+
+.btn-start {
+  background: var(--green); color: #000; border-radius: 12px;
+  padding: 18px; font-size: 1.1rem; font-weight: 900; letter-spacing: -0.01em;
+  margin-top: 4px;
+}
+.btn-start:disabled { background: var(--surface2); color: var(--text-dim); }
+
+/* ════════════════════════════════════
+   MATCH SCREEN
+════════════════════════════════════ */
+#match-screen { padding: 0; height: 100dvh; overflow: hidden; }
+
+/* Timer bar */
+.timer-bar {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 10px 14px 10px; flex-shrink: 0;
+}
+.timer-half { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); text-align: center; }
+.timer-time {
+  font-size: 3.8rem; font-weight: 900; text-align: center; line-height: 1;
+  letter-spacing: -0.04em; font-variant-numeric: tabular-nums; margin: 2px 0;
+}
+.timer-time.up    { color: var(--green); }
+.timer-time.warn  { color: var(--yellow); }
+.ht-banner {
+  background: var(--orange-bg); border: 1px solid var(--orange); border-radius: 8px;
+  text-align: center; padding: 6px 12px; font-size: 0.8rem; font-weight: 800;
+  color: var(--orange); margin: 6px 0 4px;
+}
+.timer-btns { display: flex; gap: 8px; margin-top: 6px; }
+.timer-btns button {
+  flex: 1; padding: 10px 6px; border-radius: 8px;
+  font-size: 0.78rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.tbtn-pause { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.tbtn-ht    { background: var(--orange); color: #fff; }
+.tbtn-next  { background: var(--green);  color: #000; }
+.tbtn-end   { background: var(--red);    color: #fff; }
+
+/* Suggestions */
+.suggestions {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 8px 14px; flex-shrink: 0;
+}
+.sugg-toggle {
+  display: flex; align-items: center; justify-content: space-between;
+  background: transparent; width: 100%; padding: 0;
+  font-size: 0.68rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.09em; color: var(--text-dim);
+}
+.sugg-chevron { font-size: 0.65rem; }
+.sugg-body { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+.sugg-card {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--blue-bg); border: 1px solid var(--blue);
+  border-radius: 8px; padding: 8px 10px;
+}
+.sugg-text { flex: 1; font-size: 0.82rem; line-height: 1.4; }
+.sugg-text .on  { color: var(--green); font-weight: 700; }
+.sugg-text .off { color: var(--red);   font-weight: 700; }
+.sugg-text .t   { color: var(--text-dim); font-size: 0.72rem; }
+.btn-quick-sub {
+  background: var(--blue); color: #fff; border-radius: 6px;
+  padding: 6px 10px; font-size: 0.72rem; font-weight: 800; white-space: nowrap;
+}
+.sugg-empty { font-size: 0.78rem; color: var(--text-dim); }
+
+/* Players area */
+.players-wrap { flex: 1; overflow-y: auto; padding: 10px 10px 80px; }
+.group-label {
+  font-size: 0.62rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--text-dim); padding: 6px 4px 5px;
+}
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  gap: 8px; margin-bottom: 4px;
+}
+
+/* Player card */
+.pcard {
+  border-radius: 10px; padding: 10px 10px 9px;
+  border: 2px solid transparent; position: relative;
+  user-select: none;
+}
+.pcard.s-pitch       { background: var(--green-bg);  border-color: var(--green-dim); }
+.pcard.s-bench       { background: var(--surface);   border-color: var(--border); }
+.pcard.s-injury_temp { background: var(--orange-bg); border-color: var(--orange); }
+.pcard.s-injury_perm { background: var(--red-bg);    border-color: var(--red-dim); opacity: 0.55; }
+
+.pcard-top { display: flex; align-items: center; gap: 4px; margin-bottom: 3px; }
+.pdot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.s-pitch       .pdot { background: var(--green); }
+.s-bench       .pdot { background: var(--grey); }
+.s-injury_temp .pdot { background: var(--orange); }
+.s-injury_perm .pdot { background: var(--red); }
+
+.pstatus {
+  font-size: 0.58rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.05em; color: var(--text-dim);
+}
+.s-pitch       .pstatus { color: var(--green); }
+.s-injury_temp .pstatus { color: var(--orange); }
+.s-injury_perm .pstatus { color: var(--red); }
+
+.pname { font-size: 1rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+.ptime { font-size: 0.88rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text-dim); }
+.s-pitch .ptime { color: var(--green); }
+
+.pflag {
+  position: absolute; top: 6px; right: 6px;
+  background: var(--yellow); color: #000;
+  font-size: 0.58rem; font-weight: 900; padding: 2px 5px;
+  border-radius: 99px; letter-spacing: 0.03em;
+}
+
+/* Make-sub bar */
+.sub-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  padding: 8px 14px calc(8px + env(safe-area-inset-bottom));
+  background: linear-gradient(transparent, var(--bg) 45%);
+  pointer-events: none;
+}
+.btn-make-sub {
+  pointer-events: all;
+  width: 100%; background: var(--blue); color: #fff;
+  border-radius: 12px; padding: 15px; font-size: 1rem;
+  font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em;
+}
+
+/* ════════════════════════════════════
+   MODAL
+════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.78);
+  z-index: 200; display: flex; flex-direction: column;
+  justify-content: flex-end; align-items: stretch;
+}
+.modal-overlay.hidden { display: none; }
+.modal-sheet {
+  background: var(--surface); border-radius: 20px 20px 0 0;
+  padding: 20px 16px calc(24px + env(safe-area-inset-bottom));
+  max-height: 85dvh; overflow-y: auto;
+}
+.modal-title { font-size: 1rem; font-weight: 800; text-align: center; margin-bottom: 16px; }
+.modal-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.mcol-title {
+  font-size: 0.62rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text-dim);
+  text-align: center; margin-bottom: 8px;
+}
+.mpbtn {
+  display: block; width: 100%; padding: 11px 8px; border-radius: 8px;
+  font-size: 0.88rem; font-weight: 700; text-align: center;
+  background: var(--surface2); color: var(--text);
+  border: 2px solid transparent; margin-bottom: 6px;
+  transition: all 0.1s;
+}
+.mpbtn.sel-on  { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+.mpbtn.sel-off { background: var(--red-bg);   border-color: var(--red);   color: var(--red); }
+.mpbtn:disabled { opacity: 0.3; }
+
+/* Injury selector */
+.inj-row { margin: 12px 0; background: var(--surface2); border-radius: 10px; padding: 12px; }
+.inj-label { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); margin-bottom: 8px; }
+.inj-opts { display: flex; gap: 6px; }
+.inj-opt {
+  flex: 1; padding: 8px 4px; border-radius: 8px; font-size: 0.72rem; font-weight: 700;
+  text-align: center; background: var(--surface); color: var(--text-dim);
+  border: 2px solid transparent; transition: all 0.1s;
+}
+.inj-opt.a-none { border-color: var(--border); color: var(--text); background: var(--surface2); }
+.inj-opt.a-temp { background: var(--orange-bg); border-color: var(--orange); color: var(--orange); }
+.inj-opt.a-perm { background: var(--red-bg);    border-color: var(--red);    color: var(--red); }
+
+.modal-actions { display: flex; gap: 10px; margin-top: 14px; }
+.btn-modal-cancel  {
+  flex: 1; padding: 14px; background: var(--surface2); color: var(--text);
+  border-radius: 10px; font-size: 0.9rem; font-weight: 700;
+}
+.btn-modal-confirm {
+  flex: 2; padding: 14px; background: var(--green); color: #000;
+  border-radius: 10px; font-size: 0.9rem; font-weight: 800;
+}
+.btn-modal-confirm:disabled { background: var(--surface2); color: var(--text-dim); }
+
+/* ════════════════════════════════════
+   END SCREEN
+════════════════════════════════════ */
+#end-screen { padding: 20px 16px; gap: 0; overflow-y: auto; }
+.end-header { text-align: center; margin-bottom: 20px; }
+.end-header h2 { font-size: 2rem; font-weight: 900; }
+.end-header p  { color: var(--text-dim); font-size: 0.85rem; margin-top: 4px; }
+
+.end-table { width: 100%; border-collapse: collapse; border-radius: 10px; overflow: hidden; }
+.end-table th {
+  background: var(--surface); padding: 10px 12px;
+  font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--text-dim); text-align: left;
+}
+.end-table td { padding: 9px 12px; border-top: 1px solid var(--border); font-size: 0.9rem; vertical-align: middle; }
+.end-table tr.erow-low  td { background: rgba(239,68,68,0.08); }
+.end-table tr.erow-perm td { opacity: 0.45; }
+
+.bar-wrap { background: var(--surface2); border-radius: 4px; height: 5px; margin-top: 4px; }
+.bar-fill { height: 5px; border-radius: 4px; background: var(--green); }
+.bar-fill.low { background: var(--red); }
+.flag-low { color: var(--yellow); font-size: 0.8rem; margin-left: 4px; }
+.inj-tag  { color: var(--red); font-size: 0.7rem; margin-left: 4px; }
+
+.btn-new { margin-top: 24px; background: var(--green); color: #000; border-radius: 12px; padding: 18px; font-size: 1.1rem; font-weight: 900; }
+
+/* ── Utility ── */
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- ══════ SETUP ══════ -->
+<div id="setup-screen" class="screen active">
+  <div class="setup-header">
+    <h1>🏉 Minis Subs</h1>
+    <p>Set up your match before kick-off</p>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Match Settings</div>
+    <div class="cfg-row">
+      <div class="cfg-field">
+        <label>Duration (min)</label>
+        <input type="number" id="cfg-dur" value="30" min="5" max="120" step="5">
+      </div>
+      <div class="cfg-field">
+        <label>Halves</label>
+        <input type="number" id="cfg-halves" value="2" min="1" max="4">
+      </div>
+      <div class="cfg-field">
+        <label>On Pitch</label>
+        <input type="number" id="cfg-on-pitch" value="9" min="1" max="15">
+      </div>
+    </div>
+    <div id="half-info"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Squad</div>
+    <div class="add-row">
+      <input type="text" id="pname-input" placeholder="First name…" maxlength="18" autocomplete="off">
+      <div class="status-toggle">
+        <button id="btn-sel-start" class="sel-start" onclick="setAddStatus('start')">Start</button>
+        <button id="btn-sel-sub"                     onclick="setAddStatus('sub')">Sub</button>
+      </div>
+      <button class="btn-add-player" id="btn-add" onclick="addPlayer()">Add</button>
+    </div>
+    <div class="player-list" id="player-list"></div>
+    <div id="setup-status"></div>
+  </div>
+
+  <button class="btn-start" id="btn-start-match" onclick="startMatch()" disabled>Start Match →</button>
+</div>
+
+<!-- ══════ MATCH ══════ -->
+<div id="match-screen" class="screen">
+
+  <div class="timer-bar" id="timer-bar">
+    <div class="timer-half" id="timer-half">1st Half</div>
+    <div class="timer-time" id="timer-time">0:00</div>
+    <div class="ht-banner hidden" id="ht-banner">HALF TIME</div>
+    <div class="timer-btns" id="timer-btns"></div>
+  </div>
+
+  <div class="suggestions" id="suggestions">
+    <button class="sugg-toggle" onclick="toggleSugg()">
+      <span>Smart Sub Suggestions</span>
+      <span class="sugg-chevron" id="sugg-chev">▼</span>
+    </button>
+    <div class="sugg-body" id="sugg-body"></div>
+  </div>
+
+  <div class="players-wrap" id="players-wrap">
+    <div class="group-label">On Pitch</div>
+    <div class="cards-grid" id="grid-pitch"></div>
+    <div class="group-label">Bench</div>
+    <div class="cards-grid" id="grid-bench"></div>
+    <div id="injured-section" class="hidden">
+      <div class="group-label">Injured</div>
+      <div class="cards-grid" id="grid-injured"></div>
+    </div>
+  </div>
+
+  <div class="sub-bar">
+    <button class="btn-make-sub" onclick="openModal()">⇄ Make Substitution</button>
+  </div>
+</div>
+
+<!-- ══════ MODAL ══════ -->
+<div class="modal-overlay hidden" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-title">Make Substitution</div>
+    <div class="modal-cols">
+      <div>
+        <div class="mcol-title">↑ Coming On</div>
+        <div id="modal-bench"></div>
+      </div>
+      <div>
+        <div class="mcol-title">↓ Going Off</div>
+        <div id="modal-pitch"></div>
+      </div>
+    </div>
+    <div class="inj-row">
+      <div class="inj-label">Injury (going-off player)?</div>
+      <div class="inj-opts">
+        <button class="inj-opt a-none" id="inj-none" onclick="setInj(null)">None</button>
+        <button class="inj-opt"        id="inj-temp" onclick="setInj('temp')">Temp</button>
+        <button class="inj-opt"        id="inj-perm" onclick="setInj('perm')">Full Game</button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel"  onclick="closeModal()">Cancel</button>
+      <button class="btn-modal-confirm" id="btn-confirm" onclick="confirmSub()" disabled>Confirm ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ END ══════ -->
+<div id="end-screen" class="screen">
+  <div class="end-header">
+    <h2>Full Time</h2>
+    <p id="end-sub"></p>
+  </div>
+  <table class="end-table">
+    <thead>
+      <tr>
+        <th>Player</th>
+        <th>Pitch Time</th>
+        <th>% of Match</th>
+      </tr>
+    </thead>
+    <tbody id="end-body"></tbody>
+  </table>
+  <button class="btn-new" onclick="newMatch()">New Match</button>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════
+
+const S = {
+  // phase: 'setup' | 'match' | 'paused' | 'halftime' | 'ended'
+  phase: 'setup',
+
+  // Config
+  totalMin:  30,
+  numHalves: 2,
+  numOnPitch: 9,
+
+  // Players: { id, name, status:'pitch'|'bench'|'injury_temp'|'injury_perm',
+  //            pitchTime (ms), pitchStart (timestamp|null) }
+  players: [],
+  nextId: 1,
+  addStatus: 'start',  // 'start' | 'sub'
+
+  // Match
+  currentHalf: 1,
+  halfElapsed: 0,      // seconds
+  lastTick: null,
+  interval: null,
+  suggOpen: true,
+
+  // Modal
+  modal: { benchId: null, pitchId: null, injType: null },
+};
+
+// ══════════════════════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════════════════════
+
+function halfDurSec()  { return (S.totalMin / S.numHalves) * 60; }
+function totalDurMs()  { return S.totalMin * 60 * 1000; }
+
+function fmt(sec) {
+  const s = Math.max(0, Math.floor(sec));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+}
+function fmtMs(ms) { return fmt(ms / 1000); }
+
+function halfLabel(n) {
+  return (['1st','2nd','3rd','4th'][n - 1] || `${n}th`) + ' Half';
+}
+
+function getPlayer(id)    { return S.players.find(p => p.id === id); }
+function pitchTime(p)     { return p.pitchTime + (p.pitchStart !== null ? Date.now() - p.pitchStart : 0); }
+
+function avgPitchMs() {
+  const el = S.players.filter(p => p.status !== 'injury_perm');
+  if (!el.length) return 0;
+  return el.reduce((s, p) => s + pitchTime(p), 0) / el.length;
+}
+
+function commitAll() {
+  const now = Date.now();
+  for (const p of S.players) {
+    if (p.pitchStart !== null) {
+      p.pitchTime += now - p.pitchStart;
+      p.pitchStart = null;
+    }
+  }
+}
+
+function startTimers() {
+  const now = Date.now();
+  for (const p of S.players) {
+    if (p.status === 'pitch') p.pitchStart = now;
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  SETUP
+// ══════════════════════════════════════════════════════════
+
+document.getElementById('cfg-dur').addEventListener('input',      refreshHalfInfo);
+document.getElementById('cfg-halves').addEventListener('input',   refreshHalfInfo);
+document.getElementById('cfg-on-pitch').addEventListener('input', validateSetup);
+document.getElementById('pname-input').addEventListener('keydown', e => { if (e.key === 'Enter') addPlayer(); });
+
+refreshHalfInfo();
+
+function refreshHalfInfo() {
+  const dur    = +document.getElementById('cfg-dur').value    || 30;
+  const halves = +document.getElementById('cfg-halves').value || 2;
+  const perH   = Math.round(dur / halves);
+  document.getElementById('half-info').textContent = `${halves} × ${perH} min per half`;
+  validateSetup();
+}
+
+function setAddStatus(s) {
+  S.addStatus = s;
+  document.getElementById('btn-sel-start').className = s === 'start' ? 'sel-start' : '';
+  document.getElementById('btn-sel-sub').className   = s === 'sub'   ? 'sel-sub'   : '';
+}
+
+function addPlayer() {
+  const inp  = document.getElementById('pname-input');
+  const name = inp.value.trim();
+  if (!name) return;
+  S.players.push({
+    id: S.nextId++, name,
+    status: S.addStatus === 'start' ? 'pitch' : 'bench',
+    pitchTime: 0, pitchStart: null,
+  });
+  inp.value = '';
+  inp.focus();
+  renderPlayerList();
+  validateSetup();
+}
+
+function removePlayer(id) {
+  S.players = S.players.filter(p => p.id !== id);
+  renderPlayerList();
+  validateSetup();
+}
+
+function renderPlayerList() {
+  const list = document.getElementById('player-list');
+  list.innerHTML = '';
+  for (const p of S.players) {
+    const d = document.createElement('div');
+    d.className = 'pli';
+    d.innerHTML = `
+      <span class="pli-name">${esc(p.name)}</span>
+      <span class="pill ${p.status === 'pitch' ? 'pill-start' : 'pill-sub'}">
+        ${p.status === 'pitch' ? 'Starting' : 'Sub'}
+      </span>
+      <button class="btn-remove" onclick="removePlayer(${p.id})">✕</button>
+    `;
+    list.appendChild(d);
+  }
+}
+
+function validateSetup() {
+  const n       = +document.getElementById('cfg-on-pitch').value || 9;
+  const starts  = S.players.filter(p => p.status === 'pitch');
+  const subs    = S.players.filter(p => p.status === 'bench');
+  const el      = document.getElementById('setup-status');
+  const btn     = document.getElementById('btn-start-match');
+
+  if (!S.players.length) {
+    el.textContent = 'Add players to your squad'; el.className = ''; btn.disabled = true; return;
+  }
+  if (starts.length !== n) {
+    el.textContent = `Need exactly ${n} starting players (have ${starts.length})`;
+    el.className = 'err'; btn.disabled = true; return;
+  }
+  if (!subs.length) {
+    el.textContent = 'Need at least 1 substitute';
+    el.className = 'err'; btn.disabled = true; return;
+  }
+  el.textContent = `✓ ${starts.length} starters · ${subs.length} subs — ready`;
+  el.className = 'ok'; btn.disabled = false;
+}
+
+// ══════════════════════════════════════════════════════════
+//  MATCH START
+// ══════════════════════════════════════════════════════════
+
+function startMatch() {
+  S.totalMin   = +document.getElementById('cfg-dur').value      || 30;
+  S.numHalves  = +document.getElementById('cfg-halves').value   || 2;
+  S.numOnPitch = +document.getElementById('cfg-on-pitch').value || 9;
+  S.currentHalf = 1;
+  S.halfElapsed = 0;
+  S.phase = 'match';
+
+  show('match-screen');
+  startTimers();
+  resumeTimer();
+  renderMatch();
+}
+
+// ══════════════════════════════════════════════════════════
+//  TIMER ENGINE
+// ══════════════════════════════════════════════════════════
+
+function tick() {
+  const now   = Date.now();
+  const delta = (now - S.lastTick) / 1000;
+  S.halfElapsed += delta;
+  S.lastTick = now;
+  renderTimerBar();
+  renderCards();
+  renderSugg();
+}
+
+function pauseTimer() {
+  if (S.interval) { clearInterval(S.interval); S.interval = null; }
+  S.lastTick = null;
+  commitAll();
+}
+
+function resumeTimer() {
+  S.lastTick = Date.now();
+  S.interval = setInterval(tick, 250);
+}
+
+function togglePause() {
+  if (S.phase === 'match') {
+    S.phase = 'paused';
+    pauseTimer();
+  } else if (S.phase === 'paused') {
+    S.phase = 'match';
+    startTimers();
+    resumeTimer();
+  }
+  renderTimerBar();
+}
+
+function doHalfTime() {
+  pauseTimer();
+  S.phase = 'halftime';
+  renderTimerBar();
+  renderCards();
+}
+
+function startNextHalf() {
+  S.currentHalf++;
+  S.halfElapsed = 0;
+  S.phase = 'match';
+  startTimers();
+  resumeTimer();
+  renderTimerBar();
+  renderCards();
+}
+
+function doEndMatch() {
+  pauseTimer();
+  S.phase = 'ended';
+  renderEnd();
+  show('end-screen');
+}
+
+// ══════════════════════════════════════════════════════════
+//  MATCH RENDER
+// ══════════════════════════════════════════════════════════
+
+function renderMatch() {
+  renderTimerBar();
+  renderCards();
+  renderSugg();
+}
+
+function renderTimerBar() {
+  const isLast = S.currentHalf >= S.numHalves;
+  const timeUp = S.halfElapsed >= halfDurSec();
+
+  document.getElementById('timer-half').textContent = halfLabel(S.currentHalf);
+
+  const td = document.getElementById('timer-time');
+  td.textContent = fmt(S.halfElapsed);
+  td.className = 'timer-time' + (S.phase === 'paused' ? ' warn' : (timeUp ? ' up' : ''));
+
+  const htBanner = document.getElementById('ht-banner');
+  htBanner.classList.toggle('hidden', S.phase !== 'halftime');
+
+  const btns = document.getElementById('timer-btns');
+  btns.innerHTML = '';
+
+  if (S.phase === 'halftime') {
+    if (!isLast) {
+      addBtn(btns, 'tbtn-next', `Start ${halfLabel(S.currentHalf + 1)} →`, startNextHalf);
+    } else {
+      addBtn(btns, 'tbtn-end', 'End Match', doEndMatch);
+    }
+    return;
+  }
+
+  // Pause / Resume
+  addBtn(btns, 'tbtn-pause', S.phase === 'paused' ? '▶ Resume' : '⏸ Pause', togglePause);
+
+  if (S.phase !== 'paused') {
+    if (!isLast) {
+      addBtn(btns, 'tbtn-ht', 'Half Time', doHalfTime);
+    } else {
+      // Last half — End Match (prominent once time is up)
+      const b = addBtn(btns, 'tbtn-end', 'End Match', doEndMatch);
+      if (!timeUp) b.style.opacity = '0.5';
+    }
+  }
+}
+
+function addBtn(container, cls, label, fn) {
+  const b = document.createElement('button');
+  b.className = cls;
+  b.textContent = label;
+  b.onclick = fn;
+  container.appendChild(b);
+  return b;
+}
+
+function renderCards() {
+  const avg   = avgPitchMs();
+  const thresh = avg * 0.75;
+
+  function card(p) {
+    const ms        = pitchTime(p);
+    const eligible  = p.status !== 'injury_perm';
+    const needsTime = eligible && avg > 0 && ms < thresh && p.status !== 'pitch';
+    const sl        = { pitch: 'On Pitch', bench: 'Bench', injury_temp: 'Injured', injury_perm: 'Off (Injured)' };
+
+    const d = document.createElement('div');
+    d.className = `pcard s-${p.status}`;
+    d.innerHTML = `
+      <div class="pcard-top"><span class="pdot"></span><span class="pstatus">${sl[p.status]}</span></div>
+      <div class="pname">${esc(p.name)}</div>
+      <div class="ptime">${fmtMs(ms)}</div>
+      ${needsTime ? '<div class="pflag">Needs time</div>' : ''}
+    `;
+    return d;
+  }
+
+  const pitch   = S.players.filter(p => p.status === 'pitch');
+  const bench   = S.players.filter(p => p.status === 'bench');
+  const injured = S.players.filter(p => p.status === 'injury_temp' || p.status === 'injury_perm');
+
+  fill('grid-pitch',   pitch.map(card));
+  fill('grid-bench',   bench.map(card));
+  fill('grid-injured', injured.map(card));
+  document.getElementById('injured-section').classList.toggle('hidden', !injured.length);
+}
+
+function fill(id, nodes) {
+  const g = document.getElementById(id);
+  g.innerHTML = '';
+  nodes.forEach(n => g.appendChild(n));
+}
+
+// ══════════════════════════════════════════════════════════
+//  SUGGESTIONS
+// ══════════════════════════════════════════════════════════
+
+function toggleSugg() {
+  S.suggOpen = !S.suggOpen;
+  document.getElementById('sugg-chev').textContent = S.suggOpen ? '▼' : '▶';
+  renderSugg();
+}
+
+function renderSugg() {
+  const body = document.getElementById('sugg-body');
+  body.innerHTML = '';
+  if (!S.suggOpen) return;
+
+  const bench = S.players
+    .filter(p => p.status === 'bench' || p.status === 'injury_temp')
+    .sort((a, b) => pitchTime(a) - pitchTime(b));
+
+  const onPitch = S.players
+    .filter(p => p.status === 'pitch')
+    .sort((a, b) => pitchTime(b) - pitchTime(a));
+
+  if (!bench.length || !onPitch.length) {
+    const e = document.createElement('div');
+    e.className = 'sugg-empty';
+    e.textContent = bench.length ? 'No pitch players to swap.' : 'No bench players available.';
+    body.appendChild(e);
+    return;
+  }
+
+  const count = Math.min(2, bench.length, onPitch.length);
+  for (let i = 0; i < count; i++) {
+    const bp = bench[i], pp = onPitch[i];
+    const inj = bp.status === 'injury_temp' ? ' 🤕' : '';
+    const d = document.createElement('div');
+    d.className = 'sugg-card';
+    d.innerHTML = `
+      <div class="sugg-text">
+        <span class="on">↑ ${esc(bp.name)}${inj}</span>
+        <span class="t"> (${fmtMs(pitchTime(bp))})</span>
+        &nbsp;for&nbsp;
+        <span class="off">↓ ${esc(pp.name)}</span>
+        <span class="t"> (${fmtMs(pitchTime(pp))})</span>
+      </div>
+      <button class="btn-quick-sub" onclick="quickSub(${bp.id},${pp.id})">Sub →</button>
+    `;
+    body.appendChild(d);
+  }
+}
+
+function quickSub(benchId, pitchId) { openModal(benchId, pitchId); }
+
+// ══════════════════════════════════════════════════════════
+//  MODAL
+// ══════════════════════════════════════════════════════════
+
+function openModal(presetBench, presetPitch) {
+  S.modal = { benchId: presetBench || null, pitchId: presetPitch || null, injType: null };
+  renderModal();
+  document.getElementById('modal-overlay').classList.remove('hidden');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.add('hidden');
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+function setInj(type) { S.modal.injType = type; renderModal(); }
+
+function renderModal() {
+  const bench  = S.players.filter(p => p.status === 'bench' || p.status === 'injury_temp');
+  const pitch  = S.players.filter(p => p.status === 'pitch');
+  const { benchId, pitchId, injType } = S.modal;
+
+  const bl = document.getElementById('modal-bench');
+  const pl = document.getElementById('modal-pitch');
+  bl.innerHTML = ''; pl.innerHTML = '';
+
+  for (const p of bench) {
+    const b = document.createElement('button');
+    b.className = 'mpbtn' + (benchId === p.id ? ' sel-on' : '');
+    b.textContent = p.name + (p.status === 'injury_temp' ? ' 🤕' : '');
+    b.onclick = () => { S.modal.benchId = S.modal.benchId === p.id ? null : p.id; renderModal(); };
+    bl.appendChild(b);
+  }
+
+  for (const p of pitch) {
+    const b = document.createElement('button');
+    b.className = 'mpbtn' + (pitchId === p.id ? ' sel-off' : '');
+    b.textContent = p.name;
+    b.onclick = () => { S.modal.pitchId = S.modal.pitchId === p.id ? null : p.id; renderModal(); };
+    pl.appendChild(b);
+  }
+
+  // Injury selector
+  document.getElementById('inj-none').className = 'inj-opt' + (!injType ? ' a-none' : '');
+  document.getElementById('inj-temp').className = 'inj-opt' + (injType === 'temp' ? ' a-temp' : '');
+  document.getElementById('inj-perm').className = 'inj-opt' + (injType === 'perm' ? ' a-perm' : '');
+
+  document.getElementById('btn-confirm').disabled = !(benchId && pitchId);
+}
+
+function confirmSub() {
+  const { benchId, pitchId, injType } = S.modal;
+  if (!benchId || !pitchId) return;
+
+  const bp = getPlayer(benchId);
+  const pp = getPlayer(pitchId);
+
+  // Commit the outgoing player's time
+  if (pp.pitchStart !== null) {
+    pp.pitchTime += Date.now() - pp.pitchStart;
+    pp.pitchStart = null;
+  }
+  pp.status = injType === 'perm' ? 'injury_perm' : injType === 'temp' ? 'injury_temp' : 'bench';
+
+  // Bring on the bench/injured player
+  bp.status = 'pitch';
+  if (S.phase === 'match') bp.pitchStart = Date.now();
+  // If paused or halftime, pitchStart stays null — set when play resumes
+
+  closeModal();
+  renderCards();
+  renderSugg();
+}
+
+// ══════════════════════════════════════════════════════════
+//  END SCREEN
+// ══════════════════════════════════════════════════════════
+
+function renderEnd() {
+  const totalMs = totalDurMs();
+  const eligible = S.players.filter(p => p.status !== 'injury_perm');
+  const avgMs    = eligible.length ? eligible.reduce((s, p) => s + p.pitchTime, 0) / eligible.length : 0;
+
+  document.getElementById('end-sub').textContent =
+    `${S.totalMin} min · ${S.numHalves} halves · ${S.players.length} players`;
+
+  const tbody = document.getElementById('end-body');
+  tbody.innerHTML = '';
+
+  const sorted = [...S.players].sort((a, b) => b.pitchTime - a.pitchTime);
+
+  for (const p of sorted) {
+    const pct     = Math.round((p.pitchTime / totalMs) * 100);
+    const isPerm  = p.status === 'injury_perm';
+    const isLow   = !isPerm && avgMs > 0 && p.pitchTime < avgMs * 0.75;
+    const barPct  = Math.min(100, pct);
+
+    const tr = document.createElement('tr');
+    if (isLow)  tr.className = 'erow-low';
+    if (isPerm) tr.className = 'erow-perm';
+
+    tr.innerHTML = `
+      <td>${esc(p.name)}${isPerm ? '<span class="inj-tag">(injured off)</span>' : ''}</td>
+      <td>${fmtMs(p.pitchTime)}${isLow ? '<span class="flag-low">⚑</span>' : ''}</td>
+      <td>
+        ${pct}%
+        <div class="bar-wrap"><div class="bar-fill ${isLow ? 'low' : ''}" style="width:${barPct}%"></div></div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  }
+}
+
+function newMatch() {
+  if (S.interval) clearInterval(S.interval);
+  Object.assign(S, {
+    phase: 'setup', players: [], nextId: 1, addStatus: 'start',
+    currentHalf: 1, halfElapsed: 0, lastTick: null, interval: null, suggOpen: true,
+    modal: { benchId: null, pitchId: null, injType: null },
+  });
+  document.getElementById('player-list').innerHTML = '';
+  setAddStatus('start');
+  validateSetup();
+  show('setup-screen');
+}
+
+// ══════════════════════════════════════════════════════════
+//  SCREEN SWITCHER
+// ══════════════════════════════════════════════════════════
+
+function show(id) {
+  for (const s of document.querySelectorAll('.screen')) s.classList.remove('active');
+  document.getElementById(id).classList.add('active');
+}
+
+// ══════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
