@@ -629,22 +629,35 @@ function refreshHalfInfo() {
 }
 
 function loadFromUrl() {
-  // Read from hash first (Cloudflare Workers strips query params on static sites),
-  // fall back to query string for direct URL usage.
-  const raw    = window.location.hash.slice(1) || window.location.search.slice(1);
-  const params = new URLSearchParams(raw);
+  const notice = document.getElementById('preload-notice');
+  const hash   = window.location.hash;
+  const search = window.location.search;
+  const raw    = hash.slice(1) || search.slice(1);
+
+  // Debug: always show what was received so we can diagnose
+  if (!raw) {
+    notice.textContent = `[debug] No URL data (hash="${hash||'empty'}" search="${search||'empty'}")`;
+    notice.classList.remove('hidden');
+    return;
+  }
+
+  const params  = new URLSearchParams(raw);
   const players = params.get('players');
   const team    = params.get('team');
-  if (!players) return;
 
-  const names = players.split(',').map(n => decodeURIComponent(n).trim()).filter(Boolean);
+  if (!players) {
+    notice.textContent = `[debug] raw="${raw.slice(0,80)}" — no 'players' key`;
+    notice.classList.remove('hidden');
+    return;
+  }
+
+  const names = players.split(',').map(n => { try { return decodeURIComponent(n).trim(); } catch(e) { return n.trim(); } }).filter(Boolean);
   if (!names.length) return;
 
   for (const name of names) {
     S.players.push({ id: S.nextId++, name: name.slice(0, 18), status: 'pitch', pitchTime: 0, pitchStart: null });
   }
 
-  const notice = document.getElementById('preload-notice');
   notice.textContent = `✓ ${names.length} players loaded from ${team ? team + ' ' : ''}squad — tap any pill to toggle Starting ↔ Sub`;
   notice.classList.remove('hidden');
 
