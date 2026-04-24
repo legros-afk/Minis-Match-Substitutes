@@ -588,7 +588,7 @@ function loadFromUrl() {
   const team    = params.get('team');
   if (!players) return;
 
-  const names = players.split(',').map(n => n.trim()).filter(Boolean);
+  const names = players.split(',').map(n => decodeURIComponent(n).trim()).filter(Boolean);
   if (!names.length) return;
 
   for (const name of names) {
