@@ -62,29 +62,55 @@ input  { font-family: inherit; }
 .cfg-field input:focus { outline: none; border-color: var(--blue); }
 #half-info { text-align: center; font-size: 0.72rem; color: var(--text-dim); margin-top: 10px; }
 
-/* Add player row */
-.add-row { display: flex; gap: 8px; align-items: stretch; }
-.add-row input[type=text] {
+/* Add player rows */
+.add-name-row { display: flex; margin-bottom: 8px; }
+.add-name-row input[type=text] {
   flex: 1; background: var(--surface2); border: 1px solid var(--border);
   color: var(--text); border-radius: 8px; padding: 12px; font-size: 1rem;
 }
-.add-row input[type=text]::placeholder { color: var(--text-dim); }
-.add-row input[type=text]:focus { outline: none; border-color: var(--blue); }
+.add-name-row input[type=text]::placeholder { color: var(--text-dim); }
+.add-name-row input[type=text]:focus { outline: none; border-color: var(--blue); }
 
-.status-toggle { display: flex; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+.add-ctrl-row { display: flex; gap: 8px; }
+
+.status-toggle { display: flex; border-radius: 8px; border: 1px solid var(--border); flex: 1; min-width: 0; }
 .status-toggle button {
-  padding: 0 12px; font-size: 0.75rem; font-weight: 700;
+  flex: 1; padding: 11px 8px; font-size: 0.8rem; font-weight: 700;
   background: transparent; color: var(--text-dim); white-space: nowrap;
-  transition: background 0.12s, color 0.12s;
+  border-radius: 0; transition: background 0.12s, color 0.12s;
 }
+.status-toggle button:first-child { border-radius: 7px 0 0 7px; }
+.status-toggle button:last-child  { border-radius: 0 7px 7px 0; }
 .status-toggle button.sel-start { background: var(--green); color: #000; }
 .status-toggle button.sel-sub   { background: var(--surface2); color: var(--text); }
 
 .btn-add-player {
   background: var(--blue); color: #fff; border-radius: 8px;
-  padding: 0 16px; font-size: 0.9rem; font-weight: 700;
+  padding: 11px 20px; font-size: 0.9rem; font-weight: 700; flex-shrink: 0;
 }
 .btn-add-player:disabled { opacity: 0.4; }
+
+/* Paste list */
+.paste-toggle { margin-top: 10px; }
+.btn-paste-toggle {
+  background: transparent; color: var(--blue); font-size: 0.8rem;
+  font-weight: 700; padding: 4px 0; text-decoration: underline; text-underline-offset: 3px;
+}
+.paste-body { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+.paste-body textarea {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); border-radius: 8px; padding: 10px 12px;
+  font-size: 0.9rem; resize: vertical; min-height: 90px;
+  font-family: inherit;
+}
+.paste-body textarea::placeholder { color: var(--text-dim); }
+.paste-body textarea:focus { outline: none; border-color: var(--blue); }
+.paste-actions { display: flex; gap: 8px; }
+.btn-paste-add {
+  flex: 1; padding: 10px 8px; border-radius: 8px; font-size: 0.82rem; font-weight: 700;
+}
+.btn-paste-start { background: var(--green); color: #000; }
+.btn-paste-sub   { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
 
 /* Player list */
 .player-list { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
@@ -352,13 +378,25 @@ input  { font-family: inherit; }
 
   <div class="card">
     <div class="card-label">Squad</div>
-    <div class="add-row">
+    <div class="add-name-row">
       <input type="text" id="pname-input" placeholder="First name…" maxlength="18" autocomplete="off">
+    </div>
+    <div class="add-ctrl-row">
       <div class="status-toggle">
-        <button id="btn-sel-start" class="sel-start" onclick="setAddStatus('start')">Start</button>
+        <button id="btn-sel-start" class="sel-start" onclick="setAddStatus('start')">Starting</button>
         <button id="btn-sel-sub"                     onclick="setAddStatus('sub')">Sub</button>
       </div>
       <button class="btn-add-player" id="btn-add" onclick="addPlayer()">Add</button>
+    </div>
+    <div class="paste-toggle">
+      <button class="btn-paste-toggle" onclick="togglePaste()">Or paste a list ▸</button>
+      <div class="paste-body hidden" id="paste-body">
+        <textarea id="paste-input" placeholder="Paste names here, one per line…"></textarea>
+        <div class="paste-actions">
+          <button class="btn-paste-add btn-paste-start" onclick="addPasteList('pitch')">Add all as Starters</button>
+          <button class="btn-paste-add btn-paste-sub"   onclick="addPasteList('bench')">Add all as Subs</button>
+        </div>
+      </div>
     </div>
     <div class="player-list" id="player-list"></div>
     <div id="setup-status"></div>
@@ -565,6 +603,29 @@ function addPlayer() {
 
 function removePlayer(id) {
   S.players = S.players.filter(p => p.id !== id);
+  renderPlayerList();
+  validateSetup();
+}
+
+function togglePaste() {
+  const body = document.getElementById('paste-body');
+  const open = body.classList.toggle('hidden');
+  document.querySelector('.btn-paste-toggle').textContent =
+    open ? 'Or paste a list ▸' : 'Or paste a list ▾';
+  if (!open) document.getElementById('paste-input').focus();
+}
+
+function addPasteList(status) {
+  const raw = document.getElementById('paste-input').value;
+  const names = raw
+    .split(/[\n,]+/)
+    .map(n => n.trim())
+    .filter(n => n.length > 0);
+  if (!names.length) return;
+  for (const name of names) {
+    S.players.push({ id: S.nextId++, name: name.slice(0, 18), status, pitchTime: 0, pitchStart: null });
+  }
+  document.getElementById('paste-input').value = '';
   renderPlayerList();
   validateSetup();
 }
