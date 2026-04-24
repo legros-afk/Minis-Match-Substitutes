@@ -378,6 +378,7 @@ input  { font-family: inherit; }
 
   <div class="card">
     <div class="card-label">Squad</div>
+    <div id="preload-notice" class="hidden" style="background:var(--blue-bg);border:1px solid var(--blue);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:0.8rem;color:var(--blue);font-weight:600;"></div>
     <div class="add-name-row">
       <input type="text" id="pname-input" placeholder="First name…" maxlength="18" autocomplete="off">
     </div>
@@ -571,12 +572,34 @@ document.getElementById('cfg-on-pitch').addEventListener('input', validateSetup)
 document.getElementById('pname-input').addEventListener('keydown', e => { if (e.key === 'Enter') addPlayer(); });
 
 refreshHalfInfo();
+loadFromUrl();
 
 function refreshHalfInfo() {
   const dur    = +document.getElementById('cfg-dur').value    || 30;
   const halves = +document.getElementById('cfg-halves').value || 2;
   const perH   = Math.round(dur / halves);
   document.getElementById('half-info').textContent = `${halves} × ${perH} min per half`;
+  validateSetup();
+}
+
+function loadFromUrl() {
+  const params  = new URLSearchParams(window.location.search);
+  const players = params.get('players');
+  const team    = params.get('team');
+  if (!players) return;
+
+  const names = players.split(',').map(n => n.trim()).filter(Boolean);
+  if (!names.length) return;
+
+  for (const name of names) {
+    S.players.push({ id: S.nextId++, name: name.slice(0, 18), status: 'pitch', pitchTime: 0, pitchStart: null });
+  }
+
+  const notice = document.getElementById('preload-notice');
+  notice.textContent = `✓ ${names.length} players loaded from ${team ? team + ' ' : ''}squad — tap any pill to toggle Starting ↔ Sub`;
+  notice.classList.remove('hidden');
+
+  renderPlayerList();
   validateSetup();
 }
 
