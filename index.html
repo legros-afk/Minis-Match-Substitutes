@@ -146,7 +146,12 @@ input  { font-family: inherit; }
 /* Timer bar */
 .timer-bar {
   background: var(--surface); border-bottom: 1px solid var(--border);
-  padding: 10px 14px 10px; flex-shrink: 0;
+  padding: 10px 14px 10px; flex-shrink: 0; position: relative;
+}
+.btn-edit-settings {
+  position: absolute; top: 10px; right: 12px;
+  background: transparent; color: var(--text-dim); font-size: 1.1rem;
+  padding: 4px 6px; line-height: 1;
 }
 .timer-half { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); text-align: center; }
 .timer-time {
@@ -318,6 +323,17 @@ input  { font-family: inherit; }
 }
 .btn-modal-confirm:disabled { background: var(--surface2); color: var(--text-dim); }
 
+/* Settings modal */
+.settings-row { display: flex; flex-direction: column; gap: 12px; margin-bottom: 4px; }
+.settings-field { display: flex; flex-direction: column; gap: 5px; }
+.settings-field label { font-size: 0.72rem; color: var(--text-dim); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.settings-field input {
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+  border-radius: 8px; padding: 12px; font-size: 1.1rem; font-weight: 700; text-align: center;
+}
+.settings-field input:focus { outline: none; border-color: var(--blue); }
+.settings-note { font-size: 0.72rem; color: var(--text-dim); text-align: center; margin-top: 8px; }
+
 /* ════════════════════════════════════
    END SCREEN
 ════════════════════════════════════ */
@@ -414,6 +430,7 @@ input  { font-family: inherit; }
     <div class="timer-time" id="timer-time">0:00</div>
     <div class="ht-banner hidden" id="ht-banner">HALF TIME</div>
     <div class="timer-btns" id="timer-btns"></div>
+    <button class="btn-edit-settings" onclick="openSettings()" title="Edit match settings">⚙</button>
   </div>
 
   <div class="suggestions" id="suggestions">
@@ -465,6 +482,32 @@ input  { font-family: inherit; }
     <div class="modal-actions">
       <button class="btn-modal-cancel"  onclick="closeModal()">Cancel</button>
       <button class="btn-modal-confirm" id="btn-confirm" onclick="confirmSub()" disabled>Confirm ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ SETTINGS MODAL ══════ -->
+<div class="modal-overlay hidden" id="settings-overlay" onclick="handleSettingsOverlayClick(event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-title">Match Settings</div>
+    <div class="settings-row">
+      <div class="settings-field">
+        <label>Total Duration (min)</label>
+        <input type="number" id="set-dur" min="5" max="120" step="5" oninput="updateSettingsNote()">
+      </div>
+      <div class="settings-field">
+        <label>Number of Halves</label>
+        <input type="number" id="set-halves" min="1" max="4" oninput="updateSettingsNote()">
+      </div>
+      <div class="settings-field">
+        <label>Players on Pitch</label>
+        <input type="number" id="set-on-pitch" min="1" max="15">
+      </div>
+    </div>
+    <div class="settings-note" id="settings-note"></div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeSettings()">Cancel</button>
+      <button class="btn-modal-confirm" onclick="saveSettings()">Save ✓</button>
     </div>
   </div>
 </div>
@@ -1001,6 +1044,47 @@ function confirmSub() {
   // If paused or halftime, pitchStart stays null — set when play resumes
 
   closeModal();
+  renderCards();
+  renderSugg();
+}
+
+// ══════════════════════════════════════════════════════════
+//  SETTINGS MODAL
+// ══════════════════════════════════════════════════════════
+
+function openSettings() {
+  document.getElementById('set-dur').value      = S.totalMin;
+  document.getElementById('set-halves').value   = S.numHalves;
+  document.getElementById('set-on-pitch').value = S.numOnPitch;
+  updateSettingsNote();
+  document.getElementById('settings-overlay').classList.remove('hidden');
+}
+
+function closeSettings() {
+  document.getElementById('settings-overlay').classList.add('hidden');
+}
+
+function handleSettingsOverlayClick(e) {
+  if (e.target === document.getElementById('settings-overlay')) closeSettings();
+}
+
+function updateSettingsNote() {
+  const dur    = +document.getElementById('set-dur').value    || S.totalMin;
+  const halves = +document.getElementById('set-halves').value || S.numHalves;
+  const perH   = Math.round(dur / halves);
+  document.getElementById('settings-note').textContent =
+    `${halves} × ${perH} min per half · elapsed time & pitch times unchanged`;
+}
+
+function saveSettings() {
+  const dur      = +document.getElementById('set-dur').value      || S.totalMin;
+  const halves   = +document.getElementById('set-halves').value   || S.numHalves;
+  const onPitch  = +document.getElementById('set-on-pitch').value || S.numOnPitch;
+  S.totalMin   = Math.max(5,  Math.min(120, dur));
+  S.numHalves  = Math.max(1,  Math.min(4,   halves));
+  S.numOnPitch = Math.max(1,  Math.min(15,  onPitch));
+  closeSettings();
+  renderTimerBar();
   renderCards();
   renderSugg();
 }
