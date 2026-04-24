@@ -616,6 +616,9 @@ document.getElementById('pname-input').addEventListener('keydown', e => { if (e.
 
 refreshHalfInfo();
 loadFromUrl();
+window.addEventListener('hashchange', () => {
+  if (S.phase === 'setup') loadFromUrl();
+});
 
 function refreshHalfInfo() {
   const dur    = +document.getElementById('cfg-dur').value    || 30;
@@ -626,7 +629,10 @@ function refreshHalfInfo() {
 }
 
 function loadFromUrl() {
-  const params  = new URLSearchParams(window.location.search);
+  // Read from hash first (Cloudflare Workers strips query params on static sites),
+  // fall back to query string for direct URL usage.
+  const raw    = window.location.hash.slice(1) || window.location.search.slice(1);
+  const params = new URLSearchParams(raw);
   const players = params.get('players');
   const team    = params.get('team');
   if (!players) return;
