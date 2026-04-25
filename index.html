@@ -170,6 +170,7 @@ input  { font-family: inherit; }
 .sugg-text .t   { color: var(--text-dim);  font-size: 0.72rem; }
 .btn-quick-sub { background: var(--primary); color: #fff; border-radius: 6px; padding: 6px 10px; font-size: 0.72rem; font-weight: 800; white-space: nowrap; }
 .sugg-empty { font-size: 0.78rem; color: var(--text-dim); }
+.sugg-warn  { color: var(--orange); font-size: 0.72rem; font-weight: 700; }
 
 /* Selection hint bar */
 .select-hint {
@@ -221,6 +222,7 @@ input  { font-family: inherit; }
 .s-pitch .ptime { color: var(--green); }
 
 .pflag { position: absolute; top: 6px; right: 6px; background: var(--yellow); color: #000; font-size: 0.58rem; font-weight: 900; padding: 2px 5px; border-radius: 99px; }
+.pflag.over { background: var(--orange); color: #fff; }
 
 /* Selection order badge */
 .psel-badge {
@@ -655,6 +657,7 @@ function renderCards() {
     const isComingOn = benchIdx >= 0;
     const isInvite   = needMore && !isComingOn && (p.status === 'bench' || p.status === 'injury_temp');
     const needsTime  = eligible && avg > 0 && ms < thresh && p.status !== 'pitch' && !isComingOn;
+    const tooLong    = !isGoingOff && p.status === 'pitch' && avg > 0 && ms > avg * 1.25;
     const selNum     = isGoingOff ? pitchIdx + 1 : isComingOn ? benchIdx + 1 : null;
 
     let cls = `pcard s-${p.status}`;
@@ -668,8 +671,8 @@ function renderCards() {
       <div class="pcard-top"><span class="pdot"></span><span class="pstatus">${sl[p.status]}</span></div>
       <div class="pname">${esc(p.name)}</div>
       <div class="ptime">${fmtMs(ms)}</div>
-      ${needsTime ? '<div class="pflag">Needs time</div>' : ''}
-      ${selNum   ? `<div class="psel-badge">${selNum}</div>` : ''}`;
+      ${tooLong   ? '<div class="pflag over">Too long</div>'  : needsTime ? '<div class="pflag">Needs time</div>' : ''}
+      ${selNum    ? `<div class="psel-badge">${selNum}</div>` : ''}`;
 
     if (p.status === 'pitch') {
       d.onclick = () => selectPitchPlayer(p.id);
@@ -749,16 +752,19 @@ function renderSugg() {
     e.textContent = bench.length ? 'No pitch players to swap.' : 'No bench players available.';
     body.appendChild(e); return;
   }
+  const avg   = avgPitchMs();
   const count = Math.min(bench.length, onPitch.length);
   for (let i = 0; i < count; i++) {
     const bp = bench[i], pp = onPitch[i];
-    const inj = bp.status === 'injury_temp' ? ' 🤕' : '';
+    const inj      = bp.status === 'injury_temp' ? ' 🤕' : '';
+    const overtime = avg > 0 && pitchTime(pp) > avg * 1.25;
     const d = document.createElement('div'); d.className = 'sugg-card';
     d.innerHTML = `
       <div class="sugg-text">
         <span class="on">↑ ${esc(bp.name)}${inj}</span><span class="t"> (${fmtMs(pitchTime(bp))})</span>
         &nbsp;for&nbsp;
         <span class="off">↓ ${esc(pp.name)}</span><span class="t"> (${fmtMs(pitchTime(pp))})</span>
+        ${overtime ? '<br><span class="sugg-warn">⚠ been on too long</span>' : ''}
       </div>
       <button class="btn-quick-sub" onclick="quickSub(${bp.id},${pp.id})">Sub →</button>`;
     body.appendChild(d);
