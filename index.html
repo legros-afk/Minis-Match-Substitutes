@@ -629,16 +629,23 @@ function refreshHalfInfo() {
 }
 
 function loadFromUrl() {
-  const raw = window.location.hash.slice(1) || window.location.search.slice(1);
-  if (!raw) return;
+  // Check for globals injected by a parent iframe (e.g. tour app integration)
+  let names = null;
+  let team  = null;
+  if (window.__preloadNames && window.__preloadNames.length) {
+    names = window.__preloadNames;
+    team  = window.__preloadTeam || '';
+  } else {
+    const raw = window.location.hash.slice(1) || window.location.search.slice(1);
+    if (!raw) return;
+    const params  = new URLSearchParams(raw);
+    const players = params.get('players');
+    team          = params.get('team') || '';
+    if (!players) return;
+    names = players.split(',').map(n => { try { return decodeURIComponent(n).trim(); } catch(e) { return n.trim(); } }).filter(Boolean);
+  }
 
-  const params  = new URLSearchParams(raw);
-  const players = params.get('players');
-  const team    = params.get('team');
-  if (!players) return;
-
-  const names = players.split(',').map(n => { try { return decodeURIComponent(n).trim(); } catch(e) { return n.trim(); } }).filter(Boolean);
-  if (!names.length) return;
+  if (!names || !names.length) return;
 
   for (const name of names) {
     S.players.push({ id: S.nextId++, name: name.slice(0, 18), status: 'pitch', pitchTime: 0, pitchStart: null });
