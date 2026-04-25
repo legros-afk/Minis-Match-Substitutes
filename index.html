@@ -1018,7 +1018,7 @@ function renderSugg() {
     return;
   }
 
-  const count = Math.min(2, bench.length, onPitch.length);
+  const count = Math.min(bench.length, onPitch.length);
   for (let i = 0; i < count; i++) {
     const bp = bench[i], pp = onPitch[i];
     const inj = bp.status === 'injury_temp' ? ' 🤕' : '';
