@@ -6,51 +6,50 @@
 <title>Minis Subs</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-/* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; font-family: 'Inter', sans-serif; background: #0f172a; color: #f1f5f9; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
+html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
 button { cursor: pointer; border: none; font-family: inherit; }
 input  { font-family: inherit; }
 
-/* ── Tokens ── */
+/* ── Woodford RFC colour tokens ── */
 :root {
-  --bg:         #0f172a;
-  --surface:    #1e293b;
-  --surface2:   #334155;
-  --border:     #475569;
-  --green:      #22c55e;
-  --green-dim:  #15803d;
-  --green-bg:   #052e16;
-  --grey:       #94a3b8;
-  --red:        #ef4444;
-  --red-dim:    #b91c1c;
-  --red-bg:     #450a0a;
-  --orange:     #f97316;
-  --orange-bg:  #431407;
-  --yellow:     #fbbf24;
-  --blue:       #60a5fa;
-  --blue-bg:    #172554;
-  --text:       #f1f5f9;
-  --text-dim:   #94a3b8;
+  --bg:          #F8F4FF;
+  --surface:     #FFFFFF;
+  --surface2:    #F0E6FA;
+  --border:      #E4D0F5;
+  --border-dark: #C8A0E8;
+  --primary:     #3D0066;
+  --primary-mid: #5B1A99;
+  --primary-lt:  #7B3FBB;
+  --primary-bg:  #EDE4F5;
+  --green:       #2E7D32;
+  --green-mid:   #1B5E20;
+  --green-bg:    #E8F5E9;
+  --grey:        #888888;
+  --red:         #C62828;
+  --red-dim:     #B71C1C;
+  --red-bg:      #FFEBEE;
+  --orange:      #E65100;
+  --orange-bg:   #FFF3E0;
+  --yellow:      #F9A825;
+  --text:        #1A1A1A;
+  --text-dim:    #888888;
+  --text-on-dark:#FFFFFF;
 }
 
-/* ── Screen switching ── */
 .screen { display: none; }
 .screen.active { display: flex; flex-direction: column; min-height: 100dvh; }
 
-/* ════════════════════════════════════
-   SETUP SCREEN
-════════════════════════════════════ */
+/* ══ SETUP ══ */
 #setup-screen { padding: 16px; gap: 12px; }
 
 .setup-header { text-align: center; padding: 16px 0 8px; }
-.setup-header h1 { font-size: 1.7rem; font-weight: 900; letter-spacing: -0.02em; }
+.setup-header h1 { font-size: 1.7rem; font-weight: 900; letter-spacing: -0.02em; color: var(--primary); }
 .setup-header p  { color: var(--text-dim); font-size: 0.85rem; margin-top: 4px; }
 
-.card { background: var(--surface); border-radius: 14px; padding: 16px; }
-.card-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.09em; color: var(--text-dim); margin-bottom: 14px; }
+.card { background: var(--surface); border-radius: 14px; padding: 16px; border: 1px solid var(--border); }
+.card-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.09em; color: var(--primary-mid); margin-bottom: 14px; }
 
-/* Config row */
 .cfg-row { display: flex; gap: 10px; }
 .cfg-field { flex: 1; display: flex; flex-direction: column; gap: 5px; }
 .cfg-field label { font-size: 0.72rem; color: var(--text-dim); font-weight: 600; }
@@ -59,17 +58,16 @@ input  { font-family: inherit; }
   border-radius: 8px; padding: 10px 8px; font-size: 1rem; font-weight: 700;
   text-align: center; width: 100%;
 }
-.cfg-field input:focus { outline: none; border-color: var(--blue); }
+.cfg-field input:focus { outline: none; border-color: var(--primary-mid); }
 #half-info { text-align: center; font-size: 0.72rem; color: var(--text-dim); margin-top: 10px; }
 
-/* Add player rows */
 .add-name-row { display: flex; margin-bottom: 8px; }
 .add-name-row input[type=text] {
   flex: 1; background: var(--surface2); border: 1px solid var(--border);
   color: var(--text); border-radius: 8px; padding: 12px; font-size: 1rem;
 }
 .add-name-row input[type=text]::placeholder { color: var(--text-dim); }
-.add-name-row input[type=text]:focus { outline: none; border-color: var(--blue); }
+.add-name-row input[type=text]:focus { outline: none; border-color: var(--primary-mid); }
 
 .add-ctrl-row { display: flex; gap: 8px; }
 
@@ -81,49 +79,36 @@ input  { font-family: inherit; }
 }
 .status-toggle button:first-child { border-radius: 7px 0 0 7px; }
 .status-toggle button:last-child  { border-radius: 0 7px 7px 0; }
-.status-toggle button.sel-start { background: var(--green); color: #000; }
+.status-toggle button.sel-start { background: var(--green); color: #fff; }
 .status-toggle button.sel-sub   { background: var(--surface2); color: var(--text); }
 
 .btn-add-player {
-  background: var(--blue); color: #fff; border-radius: 8px;
+  background: var(--primary); color: var(--text-on-dark); border-radius: 8px;
   padding: 11px 20px; font-size: 0.9rem; font-weight: 700; flex-shrink: 0;
 }
 .btn-add-player:disabled { opacity: 0.4; }
 
-/* Paste list */
 .paste-toggle { margin-top: 10px; }
 .btn-paste-toggle {
-  background: transparent; color: var(--blue); font-size: 0.8rem;
+  background: transparent; color: var(--primary-mid); font-size: 0.8rem;
   font-weight: 700; padding: 4px 0; text-decoration: underline; text-underline-offset: 3px;
 }
 .paste-body { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
 .paste-body textarea {
   width: 100%; background: var(--surface2); border: 1px solid var(--border);
   color: var(--text); border-radius: 8px; padding: 10px 12px;
-  font-size: 0.9rem; resize: vertical; min-height: 90px;
-  font-family: inherit;
+  font-size: 0.9rem; resize: vertical; min-height: 90px; font-family: inherit;
 }
 .paste-body textarea::placeholder { color: var(--text-dim); }
-.paste-body textarea:focus { outline: none; border-color: var(--blue); }
+.paste-body textarea:focus { outline: none; border-color: var(--primary-mid); }
 .paste-actions { display: flex; gap: 8px; }
-.btn-paste-add {
-  flex: 1; padding: 10px 8px; border-radius: 8px; font-size: 0.82rem; font-weight: 700;
-  background: var(--green); color: #000;
-}
-.pill { cursor: pointer; transition: background 0.12s, color 0.12s; }
+.btn-paste-add { flex: 1; padding: 10px 8px; border-radius: 8px; font-size: 0.82rem; font-weight: 700; background: var(--green); color: #fff; }
 
-/* Player list */
 .player-list { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
-.pli {
-  display: flex; align-items: center; gap: 8px;
-  background: var(--surface2); border-radius: 8px; padding: 8px 10px;
-}
-.pli-name { flex: 1; font-size: 0.95rem; font-weight: 600; }
-.pill {
-  font-size: 0.62rem; font-weight: 800; text-transform: uppercase;
-  padding: 3px 8px; border-radius: 99px; letter-spacing: 0.04em;
-}
-.pill-start { background: var(--green);  color: #000; }
+.pli { display: flex; align-items: center; gap: 8px; background: var(--surface2); border-radius: 8px; padding: 8px 10px; }
+.pli-name { flex: 1; font-size: 0.95rem; font-weight: 600; color: var(--text); }
+.pill { cursor: pointer; font-size: 0.62rem; font-weight: 800; text-transform: uppercase; padding: 3px 8px; border-radius: 99px; letter-spacing: 0.04em; transition: background 0.12s; }
+.pill-start { background: var(--green); color: #fff; }
 .pill-sub   { background: var(--border); color: var(--text); }
 .btn-remove { background: transparent; color: var(--red); font-size: 1.1rem; padding: 2px 6px; }
 
@@ -132,130 +117,93 @@ input  { font-family: inherit; }
 #setup-status.err { color: var(--red); }
 
 .btn-start {
-  background: var(--green); color: #000; border-radius: 12px;
-  padding: 18px; font-size: 1.1rem; font-weight: 900; letter-spacing: -0.01em;
-  margin-top: 4px;
+  background: var(--primary); color: var(--text-on-dark); border-radius: 12px;
+  padding: 18px; font-size: 1.1rem; font-weight: 900; letter-spacing: -0.01em; margin-top: 4px;
 }
-.btn-start:disabled { background: var(--surface2); color: var(--text-dim); }
+.btn-start:disabled { background: var(--border); color: var(--text-dim); }
 
-/* ════════════════════════════════════
-   MATCH SCREEN
-════════════════════════════════════ */
+/* ══ MATCH ══ */
 #match-screen { padding: 0; height: 100dvh; overflow: hidden; }
 
-/* Timer bar */
 .timer-bar {
-  background: var(--surface); border-bottom: 1px solid var(--border);
-  padding: 10px 14px 10px; flex-shrink: 0; position: relative;
+  background: var(--primary);
+  padding: 10px 14px; flex-shrink: 0; position: relative;
 }
 .btn-edit-settings {
   position: absolute; top: 10px; right: 12px;
-  background: transparent; color: var(--text-dim); font-size: 1.1rem;
-  padding: 4px 6px; line-height: 1;
+  background: transparent; color: rgba(255,255,255,0.6); font-size: 1.1rem; padding: 4px 6px; line-height: 1;
 }
-.timer-half { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); text-align: center; }
-.timer-time {
-  font-size: 3.8rem; font-weight: 900; text-align: center; line-height: 1;
-  letter-spacing: -0.04em; font-variant-numeric: tabular-nums; margin: 2px 0;
-}
-.timer-time.up    { color: var(--green); }
-.timer-time.warn  { color: var(--yellow); }
+.timer-half { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.65); text-align: center; }
+.timer-time { font-size: 3.8rem; font-weight: 900; text-align: center; line-height: 1; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; margin: 2px 0; color: var(--text-on-dark); }
+.timer-time.up   { color: #86efac; }
+.timer-time.warn { color: #fde68a; }
 .ht-banner {
-  background: var(--orange-bg); border: 1px solid var(--orange); border-radius: 8px;
-  text-align: center; padding: 6px 12px; font-size: 0.8rem; font-weight: 800;
-  color: var(--orange); margin: 6px 0 4px;
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.35); border-radius: 8px;
+  text-align: center; padding: 6px 12px; font-size: 0.8rem; font-weight: 800; color: #fff; margin: 6px 0 4px;
 }
 .timer-btns { display: flex; gap: 8px; margin-top: 6px; }
-.timer-btns button {
-  flex: 1; padding: 10px 6px; border-radius: 8px;
-  font-size: 0.78rem; font-weight: 800; text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-.tbtn-pause { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.timer-btns button { flex: 1; padding: 10px 6px; border-radius: 8px; font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.02em; }
+.tbtn-pause { background: rgba(255,255,255,0.15); color: #fff; }
 .tbtn-ht    { background: var(--orange); color: #fff; }
-.tbtn-next  { background: var(--green);  color: #000; }
+.tbtn-next  { background: var(--green);  color: #fff; }
 .tbtn-end   { background: var(--red);    color: #fff; }
 
-/* Suggestions */
 .suggestions {
-  background: var(--surface); border-bottom: 1px solid var(--border);
+  background: var(--primary-bg); border-bottom: 1px solid var(--border);
   padding: 8px 14px; flex-shrink: 0;
 }
 .sugg-toggle {
   display: flex; align-items: center; justify-content: space-between;
   background: transparent; width: 100%; padding: 0;
   font-size: 0.68rem; font-weight: 800; text-transform: uppercase;
-  letter-spacing: 0.09em; color: var(--text-dim);
+  letter-spacing: 0.09em; color: var(--primary-mid);
 }
 .sugg-chevron { font-size: 0.65rem; }
 .sugg-body { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
 .sugg-card {
   display: flex; align-items: center; gap: 8px;
-  background: var(--blue-bg); border: 1px solid var(--blue);
-  border-radius: 8px; padding: 8px 10px;
+  background: var(--surface); border: 1px solid var(--border-dark); border-radius: 8px; padding: 8px 10px;
 }
 .sugg-text { flex: 1; font-size: 0.82rem; line-height: 1.4; }
-.sugg-text .on  { color: var(--green); font-weight: 700; }
-.sugg-text .off { color: var(--red);   font-weight: 700; }
-.sugg-text .t   { color: var(--text-dim); font-size: 0.72rem; }
-.btn-quick-sub {
-  background: var(--blue); color: #fff; border-radius: 6px;
-  padding: 6px 10px; font-size: 0.72rem; font-weight: 800; white-space: nowrap;
-}
+.sugg-text .on  { color: var(--green-mid); font-weight: 700; }
+.sugg-text .off { color: var(--red-dim);   font-weight: 700; }
+.sugg-text .t   { color: var(--text-dim);  font-size: 0.72rem; }
+.btn-quick-sub { background: var(--primary); color: #fff; border-radius: 6px; padding: 6px 10px; font-size: 0.72rem; font-weight: 800; white-space: nowrap; }
 .sugg-empty { font-size: 0.78rem; color: var(--text-dim); }
 
 /* Selection hint bar */
 .select-hint {
   flex-shrink: 0; display: flex; align-items: center; gap: 8px;
-  background: var(--yellow); color: #000;
-  padding: 9px 12px; font-size: 0.8rem; font-weight: 700;
+  background: var(--primary-mid); color: #fff; padding: 9px 12px; font-size: 0.8rem; font-weight: 700;
 }
 .select-hint span { flex: 1; }
-.btn-hint-cancel {
-  background: rgba(0,0,0,0.15); color: #000; border-radius: 6px;
-  padding: 4px 10px; font-size: 0.78rem; font-weight: 800;
-}
+.btn-hint-cancel { background: rgba(255,255,255,0.2); color: #fff; border-radius: 6px; padding: 4px 10px; font-size: 0.78rem; font-weight: 800; }
 
-/* Players area */
 .players-wrap { flex: 1; overflow-y: auto; padding: 10px 10px 20px; }
-.group-label {
-  font-size: 0.62rem; font-weight: 800; text-transform: uppercase;
-  letter-spacing: 0.1em; color: var(--text-dim); padding: 6px 4px 5px;
-}
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
-  gap: 8px; margin-bottom: 4px;
-}
+.group-label { font-size: 0.62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--primary-lt); padding: 6px 4px 5px; }
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 8px; margin-bottom: 4px; }
 
-/* Player card */
+/* Player cards */
 .pcard {
-  border-radius: 10px; padding: 10px 10px 9px;
-  border: 2px solid transparent; position: relative;
-  user-select: none; cursor: pointer;
+  border-radius: 10px; padding: 10px 10px 9px; border: 2px solid transparent;
+  position: relative; user-select: none; cursor: pointer;
   transition: border-color 0.12s, box-shadow 0.12s, transform 0.1s;
 }
 .pcard:active { transform: scale(0.95); }
-.pcard.s-pitch       { background: var(--green-bg);  border-color: var(--green-dim); }
+.pcard.s-pitch       { background: var(--green-bg);  border-color: var(--green); }
 .pcard.s-bench       { background: var(--surface);   border-color: var(--border); }
 .pcard.s-injury_temp { background: var(--orange-bg); border-color: var(--orange); }
-.pcard.s-injury_perm { background: var(--red-bg);    border-color: var(--red-dim); opacity: 0.55; cursor: default; }
+.pcard.s-injury_perm { background: var(--red-bg);    border-color: var(--red-dim); opacity: 0.65; }
 
-/* Selected pitch player — yellow ring */
-.pcard.s-pitch.selected {
-  border-color: var(--yellow);
-  box-shadow: 0 0 0 3px rgba(251,191,36,0.3);
-}
-
-/* Bench cards pulse when a pitch player is selected */
-.pcard.s-bench.invite,
-.pcard.s-injury_temp.invite {
-  border-color: var(--blue);
-  animation: pulse-invite 1.4s ease-in-out infinite;
-}
+/* going off — red ring */
+.pcard.s-pitch.going-off { border-color: var(--red); box-shadow: 0 0 0 3px rgba(198,40,40,0.2); }
+/* coming on — green ring */
+.pcard.coming-on { border-color: var(--green); box-shadow: 0 0 0 3px rgba(46,125,50,0.2); }
+/* bench/temp pulse invitation */
+.pcard.invite { border-color: var(--primary-mid); animation: pulse-invite 1.4s ease-in-out infinite; }
 @keyframes pulse-invite {
-  0%,100% { box-shadow: 0 0 0 0 rgba(96,165,250,0.5); }
-  50%      { box-shadow: 0 0 0 7px rgba(96,165,250,0); }
+  0%,100% { box-shadow: 0 0 0 0 rgba(91,26,153,0.45); }
+  50%      { box-shadow: 0 0 0 7px rgba(91,26,153,0); }
 }
 
 .pcard-top { display: flex; align-items: center; gap: 4px; margin-bottom: 3px; }
@@ -264,113 +212,96 @@ input  { font-family: inherit; }
 .s-bench       .pdot { background: var(--grey); }
 .s-injury_temp .pdot { background: var(--orange); }
 .s-injury_perm .pdot { background: var(--red); }
-
-.pstatus {
-  font-size: 0.58rem; font-weight: 800; text-transform: uppercase;
-  letter-spacing: 0.05em; color: var(--text-dim);
-}
-.s-pitch       .pstatus { color: var(--green); }
+.pstatus { font-size: 0.58rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.s-pitch       .pstatus { color: var(--green-mid); }
 .s-injury_temp .pstatus { color: var(--orange); }
 .s-injury_perm .pstatus { color: var(--red); }
-
-.pname { font-size: 1rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+.pname { font-size: 1rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; color: var(--text); }
 .ptime { font-size: 0.88rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text-dim); }
 .s-pitch .ptime { color: var(--green); }
 
-.pflag {
-  position: absolute; top: 6px; right: 6px;
-  background: var(--yellow); color: #000;
-  font-size: 0.58rem; font-weight: 900; padding: 2px 5px;
-  border-radius: 99px; letter-spacing: 0.03em;
-}
+.pflag { position: absolute; top: 6px; right: 6px; background: var(--yellow); color: #000; font-size: 0.58rem; font-weight: 900; padding: 2px 5px; border-radius: 99px; }
 
-/* ════════════════════════════════════
-   MODAL
-════════════════════════════════════ */
+/* Selection order badge */
+.psel-badge {
+  position: absolute; top: 5px; right: 5px;
+  width: 18px; height: 18px; border-radius: 50%;
+  font-size: 0.65rem; font-weight: 900; line-height: 1;
+  display: flex; align-items: center; justify-content: center; pointer-events: none;
+}
+.going-off .psel-badge { background: var(--red);   color: #fff; }
+.coming-on .psel-badge { background: var(--green); color: #fff; }
+
+/* ══ MODALS ══ */
 .modal-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.78);
-  z-index: 200; display: flex; flex-direction: column;
-  justify-content: flex-end; align-items: stretch;
+  position: fixed; inset: 0; background: rgba(61,0,102,0.55);
+  z-index: 200; display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch;
 }
 .modal-overlay.hidden { display: none; }
 .modal-sheet {
   background: var(--surface); border-radius: 20px 20px 0 0;
   padding: 20px 16px calc(24px + env(safe-area-inset-bottom));
   max-height: 85dvh; overflow-y: auto;
+  border-top: 3px solid var(--primary);
 }
-.modal-title { font-size: 1rem; font-weight: 800; text-align: center; margin-bottom: 16px; }
+.modal-title { font-size: 1rem; font-weight: 800; text-align: center; margin-bottom: 16px; color: var(--primary); }
 
-/* Sub summary */
-.sub-summary {
-  background: var(--surface2); border-radius: 12px; padding: 16px;
-  text-align: center; margin-bottom: 14px;
+/* Sub pair rows */
+.sub-pair-row {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface2); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px;
 }
-.sub-on  { font-size: 1.1rem; font-weight: 800; color: var(--green); }
-.sub-for { font-size: 0.75rem; color: var(--text-dim); margin: 5px 0; }
-.sub-off { font-size: 1.1rem; font-weight: 800; color: var(--red); }
+.sub-pair-names { flex: 1; font-size: 0.85rem; line-height: 1.5; }
+.sub-on  { color: var(--green-mid); font-weight: 800; }
+.sub-for { color: var(--text-dim);  font-size: 0.75rem; margin: 0 3px; }
+.sub-off { color: var(--red-dim);   font-weight: 800; }
+.inj-compact { display: flex; gap: 4px; flex-shrink: 0; }
+.inj-compact .inj-opt { padding: 6px 8px; font-size: 0.65rem; white-space: nowrap; flex: none; }
 
-/* Injury selector */
-.inj-row { margin: 12px 0; background: var(--surface2); border-radius: 10px; padding: 12px; }
-.inj-label { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); margin-bottom: 8px; }
-.inj-opts { display: flex; gap: 6px; }
 .inj-opt {
   flex: 1; padding: 8px 4px; border-radius: 8px; font-size: 0.72rem; font-weight: 700;
   text-align: center; background: var(--surface); color: var(--text-dim);
   border: 2px solid transparent; transition: all 0.1s;
 }
-.inj-opt.a-none { border-color: var(--border); color: var(--text); background: var(--surface2); }
+.inj-opt.a-none { border-color: var(--border-dark); color: var(--text);   background: var(--surface); }
 .inj-opt.a-temp { background: var(--orange-bg); border-color: var(--orange); color: var(--orange); }
 .inj-opt.a-perm { background: var(--red-bg);    border-color: var(--red);    color: var(--red); }
 
 .modal-actions { display: flex; gap: 10px; margin-top: 14px; }
-.btn-modal-cancel  {
-  flex: 1; padding: 14px; background: var(--surface2); color: var(--text);
-  border-radius: 10px; font-size: 0.9rem; font-weight: 700;
-}
-.btn-modal-confirm {
-  flex: 2; padding: 14px; background: var(--green); color: #000;
-  border-radius: 10px; font-size: 0.9rem; font-weight: 800;
-}
-.btn-modal-confirm:disabled { background: var(--surface2); color: var(--text-dim); }
+.btn-modal-cancel  { flex: 1; padding: 14px; background: var(--surface2); color: var(--text); border-radius: 10px; font-size: 0.9rem; font-weight: 700; border: 1px solid var(--border); }
+.btn-modal-confirm { flex: 2; padding: 14px; background: var(--green); color: #fff; border-radius: 10px; font-size: 0.9rem; font-weight: 800; }
+.btn-modal-confirm:disabled { background: var(--border); color: var(--text-dim); }
 
-/* Settings modal */
+.modal-body-text { text-align: center; color: var(--text-dim); font-size: 0.9rem; margin-bottom: 16px; line-height: 1.5; }
+
+/* Settings fields */
 .settings-row { display: flex; flex-direction: column; gap: 12px; margin-bottom: 4px; }
 .settings-field { display: flex; flex-direction: column; gap: 5px; }
 .settings-field label { font-size: 0.72rem; color: var(--text-dim); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
-.settings-field input {
-  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
-  border-radius: 8px; padding: 12px; font-size: 1.1rem; font-weight: 700; text-align: center;
-}
-.settings-field input:focus { outline: none; border-color: var(--blue); }
+.settings-field input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 12px; font-size: 1.1rem; font-weight: 700; text-align: center; }
+.settings-field input:focus { outline: none; border-color: var(--primary-mid); }
 .settings-note { font-size: 0.72rem; color: var(--text-dim); text-align: center; margin-top: 8px; }
 
-/* ════════════════════════════════════
-   END SCREEN
-════════════════════════════════════ */
-#end-screen { padding: 20px 16px; gap: 0; overflow-y: auto; }
+/* ══ END SCREEN ══ */
+#end-screen { padding: 20px 16px; gap: 0; overflow-y: auto; background: var(--bg); }
 .end-header { text-align: center; margin-bottom: 20px; }
-.end-header h2 { font-size: 2rem; font-weight: 900; }
+.end-header h2 { font-size: 2rem; font-weight: 900; color: var(--primary); }
 .end-header p  { color: var(--text-dim); font-size: 0.85rem; margin-top: 4px; }
 
-.end-table { width: 100%; border-collapse: collapse; border-radius: 10px; overflow: hidden; }
-.end-table th {
-  background: var(--surface); padding: 10px 12px;
-  font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
-  letter-spacing: 0.07em; color: var(--text-dim); text-align: left;
-}
-.end-table td { padding: 9px 12px; border-top: 1px solid var(--border); font-size: 0.9rem; vertical-align: middle; }
-.end-table tr.erow-low  td { background: rgba(239,68,68,0.08); }
-.end-table tr.erow-perm td { opacity: 0.45; }
+.end-table { width: 100%; border-collapse: collapse; overflow: hidden; }
+.end-table th { background: var(--primary); padding: 10px 12px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.07em; color: #fff; text-align: left; }
+.end-table td { padding: 9px 12px; border-top: 1px solid var(--border); font-size: 0.9rem; vertical-align: middle; background: var(--surface); color: var(--text); }
+.end-table tr.erow-low  td { background: var(--red-bg); }
+.end-table tr.erow-perm td { opacity: 0.5; }
 
-.bar-wrap { background: var(--surface2); border-radius: 4px; height: 5px; margin-top: 4px; }
+.bar-wrap { background: var(--border); border-radius: 4px; height: 5px; margin-top: 4px; }
 .bar-fill { height: 5px; border-radius: 4px; background: var(--green); }
 .bar-fill.low { background: var(--red); }
-.flag-low { color: var(--yellow); font-size: 0.8rem; margin-left: 4px; }
+.flag-low { color: var(--orange); font-size: 0.8rem; margin-left: 4px; }
 .inj-tag  { color: var(--red); font-size: 0.7rem; margin-left: 4px; }
 
-.btn-new { margin-top: 24px; background: var(--green); color: #000; border-radius: 12px; padding: 18px; font-size: 1.1rem; font-weight: 900; }
+.btn-new { margin-top: 24px; background: var(--primary); color: #fff; border-radius: 12px; padding: 18px; font-size: 1.1rem; font-weight: 900; }
 
-/* ── Utility ── */
 .hidden { display: none !important; }
 </style>
 </head>
@@ -382,36 +313,25 @@ input  { font-family: inherit; }
     <h1>🏉 Minis Subs</h1>
     <p>Set up your match before kick-off</p>
   </div>
-
   <div class="card">
     <div class="card-label">Match Settings</div>
     <div class="cfg-row">
-      <div class="cfg-field">
-        <label>Duration (min)</label>
-        <input type="number" id="cfg-dur" value="30" min="5" max="120" step="5">
-      </div>
-      <div class="cfg-field">
-        <label>Halves</label>
-        <input type="number" id="cfg-halves" value="2" min="1" max="4">
-      </div>
-      <div class="cfg-field">
-        <label>On Pitch</label>
-        <input type="number" id="cfg-on-pitch" value="9" min="1" max="15">
-      </div>
+      <div class="cfg-field"><label>Duration (min)</label><input type="number" id="cfg-dur" value="30" min="5" max="120" step="5"></div>
+      <div class="cfg-field"><label>Halves</label><input type="number" id="cfg-halves" value="2" min="1" max="4"></div>
+      <div class="cfg-field"><label>On Pitch</label><input type="number" id="cfg-on-pitch" value="9" min="1" max="15"></div>
     </div>
     <div id="half-info"></div>
   </div>
-
   <div class="card">
     <div class="card-label">Squad</div>
-    <div id="preload-notice" class="hidden" style="background:var(--blue-bg);border:1px solid var(--blue);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:0.8rem;color:var(--blue);font-weight:600;"></div>
+    <div id="preload-notice" class="hidden" style="background:var(--primary-bg);border:1px solid var(--border-dark);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:0.8rem;color:var(--primary-mid);font-weight:600;"></div>
     <div class="add-name-row">
       <input type="text" id="pname-input" placeholder="First name…" maxlength="18" autocomplete="off">
     </div>
     <div class="add-ctrl-row">
       <div class="status-toggle">
         <button id="btn-sel-start" class="sel-start" onclick="setAddStatus('start')">Starting</button>
-        <button id="btn-sel-sub"                     onclick="setAddStatus('sub')">Sub</button>
+        <button id="btn-sel-sub" onclick="setAddStatus('sub')">Sub</button>
       </div>
       <button class="btn-add-player" id="btn-add" onclick="addPlayer()">Add</button>
     </div>
@@ -419,22 +339,18 @@ input  { font-family: inherit; }
       <button class="btn-paste-toggle" onclick="togglePaste()">Or paste a list ▸</button>
       <div class="paste-body hidden" id="paste-body">
         <textarea id="paste-input" placeholder="Paste names here, one per line…"></textarea>
-        <div class="paste-actions">
-          <button class="btn-paste-add" onclick="addPasteList()">Add All</button>
-        </div>
-        <div style="font-size:0.72rem;color:var(--text-dim);margin-top:6px;">Added as Starters — tap a player's pill to toggle Starting ↔ Sub</div>
+        <div class="paste-actions"><button class="btn-paste-add" onclick="addPasteList()">Add All</button></div>
+        <div style="font-size:0.72rem;color:var(--text-dim);margin-top:6px;">Added as Starters — tap a pill to toggle Starting ↔ Sub</div>
       </div>
     </div>
     <div class="player-list" id="player-list"></div>
     <div id="setup-status"></div>
   </div>
-
   <button class="btn-start" id="btn-start-match" onclick="startMatch()" disabled>Start Match →</button>
 </div>
 
 <!-- ══════ MATCH ══════ -->
 <div id="match-screen" class="screen">
-
   <div class="timer-bar" id="timer-bar">
     <div class="timer-half" id="timer-half">1st Half</div>
     <div class="timer-time" id="timer-time">0:00</div>
@@ -451,13 +367,12 @@ input  { font-family: inherit; }
     <div class="sugg-body" id="sugg-body"></div>
   </div>
 
-  <!-- Appears when a pitch player is selected -->
   <div class="select-hint hidden" id="select-hint">
-    <span id="hint-text">Tap a bench player to bring them on</span>
+    <span id="hint-text"></span>
     <button class="btn-hint-cancel" onclick="clearSelection()">Cancel</button>
   </div>
 
-  <div class="players-wrap" id="players-wrap">
+  <div class="players-wrap">
     <div class="group-label">On Pitch</div>
     <div class="cards-grid" id="grid-pitch"></div>
     <div class="group-label">Bench</div>
@@ -467,29 +382,28 @@ input  { font-family: inherit; }
       <div class="cards-grid" id="grid-injured"></div>
     </div>
   </div>
-
 </div>
 
 <!-- ══════ CONFIRM SUB MODAL ══════ -->
 <div class="modal-overlay hidden" id="modal-overlay" onclick="handleOverlayClick(event)">
   <div class="modal-sheet" onclick="event.stopPropagation()">
-    <div class="modal-title">Confirm Substitution</div>
-    <div class="sub-summary" id="sub-summary">
-      <div class="sub-on"  id="sub-on-name">—</div>
-      <div class="sub-for">coming on for</div>
-      <div class="sub-off" id="sub-off-name">—</div>
-    </div>
-    <div class="inj-row">
-      <div class="inj-label">Injury (going-off player)?</div>
-      <div class="inj-opts">
-        <button class="inj-opt a-none" id="inj-none" onclick="setInj(null)">None</button>
-        <button class="inj-opt"        id="inj-temp" onclick="setInj('temp')">Temp</button>
-        <button class="inj-opt"        id="inj-perm" onclick="setInj('perm')">Full Game</button>
-      </div>
-    </div>
+    <div class="modal-title" id="modal-title">Confirm Substitution</div>
+    <div id="modal-body"></div>
     <div class="modal-actions">
-      <button class="btn-modal-cancel"  onclick="closeModal()">Cancel</button>
+      <button class="btn-modal-cancel" onclick="closeModal()">Cancel</button>
       <button class="btn-modal-confirm" id="btn-confirm" onclick="confirmSub()">Confirm ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ UNINJURE MODAL ══════ -->
+<div class="modal-overlay hidden" id="uninjure-overlay" onclick="handleUninjureOverlayClick(event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-title">Return to Squad</div>
+    <p class="modal-body-text" id="uninjure-text"></p>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeUninjure()">Cancel</button>
+      <button class="btn-modal-confirm" onclick="confirmUninjure()">Bring back ✓</button>
     </div>
   </div>
 </div>
@@ -499,18 +413,9 @@ input  { font-family: inherit; }
   <div class="modal-sheet" onclick="event.stopPropagation()">
     <div class="modal-title">Match Settings</div>
     <div class="settings-row">
-      <div class="settings-field">
-        <label>Total Duration (min)</label>
-        <input type="number" id="set-dur" min="5" max="120" step="5" oninput="updateSettingsNote()">
-      </div>
-      <div class="settings-field">
-        <label>Number of Halves</label>
-        <input type="number" id="set-halves" min="1" max="4" oninput="updateSettingsNote()">
-      </div>
-      <div class="settings-field">
-        <label>Players on Pitch</label>
-        <input type="number" id="set-on-pitch" min="1" max="15">
-      </div>
+      <div class="settings-field"><label>Total Duration (min)</label><input type="number" id="set-dur" min="5" max="120" step="5" oninput="updateSettingsNote()"></div>
+      <div class="settings-field"><label>Number of Halves</label><input type="number" id="set-halves" min="1" max="4" oninput="updateSettingsNote()"></div>
+      <div class="settings-field"><label>Players on Pitch</label><input type="number" id="set-on-pitch" min="1" max="15"></div>
     </div>
     <div class="settings-note" id="settings-note"></div>
     <div class="modal-actions">
@@ -522,18 +427,9 @@ input  { font-family: inherit; }
 
 <!-- ══════ END ══════ -->
 <div id="end-screen" class="screen">
-  <div class="end-header">
-    <h2>Full Time</h2>
-    <p id="end-sub"></p>
-  </div>
+  <div class="end-header"><h2>Full Time</h2><p id="end-sub"></p></div>
   <table class="end-table">
-    <thead>
-      <tr>
-        <th>Player</th>
-        <th>Pitch Time</th>
-        <th>% of Match</th>
-      </tr>
-    </thead>
+    <thead><tr><th>Player</th><th>Pitch Time</th><th>% of Match</th></tr></thead>
     <tbody id="end-body"></tbody>
   </table>
   <button class="btn-new" onclick="newMatch()">New Match</button>
@@ -543,131 +439,76 @@ input  { font-family: inherit; }
 // ══════════════════════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════════════════════
-
 const S = {
-  // phase: 'setup' | 'match' | 'paused' | 'halftime' | 'ended'
   phase: 'setup',
-
-  // Config
-  totalMin:  30,
-  numHalves: 2,
-  numOnPitch: 9,
-
-  // Players: { id, name, status:'pitch'|'bench'|'injury_temp'|'injury_perm',
-  //            pitchTime (ms), pitchStart (timestamp|null) }
-  players: [],
-  nextId: 1,
-  addStatus: 'start',  // 'start' | 'sub'
-
-  // Match
-  currentHalf: 1,
-  halfElapsed: 0,      // seconds
-  lastTick: null,
-  interval: null,
-  suggOpen: true,
-
-  // Tap-to-sub selection
-  selPitchId: null,
-
-  // Modal
-  modal: { benchId: null, pitchId: null, injType: null },
+  totalMin: 30, numHalves: 2, numOnPitch: 9,
+  players: [], nextId: 1, addStatus: 'start',
+  currentHalf: 1, halfElapsed: 0, lastTick: null, interval: null, suggOpen: true,
+  selPitch: [],          // pitch player ids going off, in tap order
+  selBench: [],          // bench/temp player ids coming on, in tap order
+  modal: { pairs: [] },  // [{pitchId, benchId, injType}]
+  pendingUninjureId: null,
 };
 
 // ══════════════════════════════════════════════════════════
 //  UTILS
 // ══════════════════════════════════════════════════════════
-
-function halfDurSec()  { return (S.totalMin / S.numHalves) * 60; }
-function totalDurMs()  { return S.totalMin * 60 * 1000; }
-
-function fmt(sec) {
-  const s = Math.max(0, Math.floor(sec));
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-}
+function halfDurSec() { return (S.totalMin / S.numHalves) * 60; }
+function totalDurMs() { return S.totalMin * 60 * 1000; }
+function fmt(sec) { const s = Math.max(0, Math.floor(sec)); return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; }
 function fmtMs(ms) { return fmt(ms / 1000); }
-
-function halfLabel(n) {
-  return (['1st','2nd','3rd','4th'][n - 1] || `${n}th`) + ' Half';
-}
-
-function getPlayer(id)    { return S.players.find(p => p.id === id); }
-function pitchTime(p)     { return p.pitchTime + (p.pitchStart !== null ? Date.now() - p.pitchStart : 0); }
-
+function halfLabel(n) { return (['1st','2nd','3rd','4th'][n-1] || `${n}th`) + ' Half'; }
+function getPlayer(id) { return S.players.find(p => p.id === id); }
+function pitchTime(p)  { return p.pitchTime + (p.pitchStart !== null ? Date.now() - p.pitchStart : 0); }
 function avgPitchMs() {
   const el = S.players.filter(p => p.status !== 'injury_perm');
-  if (!el.length) return 0;
-  return el.reduce((s, p) => s + pitchTime(p), 0) / el.length;
+  return el.length ? el.reduce((s,p) => s + pitchTime(p), 0) / el.length : 0;
 }
-
 function commitAll() {
   const now = Date.now();
-  for (const p of S.players) {
-    if (p.pitchStart !== null) {
-      p.pitchTime += now - p.pitchStart;
-      p.pitchStart = null;
-    }
-  }
+  for (const p of S.players) { if (p.pitchStart !== null) { p.pitchTime += now - p.pitchStart; p.pitchStart = null; } }
 }
-
 function startTimers() {
   const now = Date.now();
-  for (const p of S.players) {
-    if (p.status === 'pitch') p.pitchStart = now;
-  }
+  for (const p of S.players) { if (p.status === 'pitch') p.pitchStart = now; }
 }
 
 // ══════════════════════════════════════════════════════════
 //  SETUP
 // ══════════════════════════════════════════════════════════
-
-document.getElementById('cfg-dur').addEventListener('input',      refreshHalfInfo);
-document.getElementById('cfg-halves').addEventListener('input',   refreshHalfInfo);
+document.getElementById('cfg-dur').addEventListener('input', refreshHalfInfo);
+document.getElementById('cfg-halves').addEventListener('input', refreshHalfInfo);
 document.getElementById('cfg-on-pitch').addEventListener('input', validateSetup);
 document.getElementById('pname-input').addEventListener('keydown', e => { if (e.key === 'Enter') addPlayer(); });
-
 refreshHalfInfo();
 loadFromUrl();
-window.addEventListener('hashchange', () => {
-  if (S.phase === 'setup') loadFromUrl();
-});
+window.addEventListener('hashchange', () => { if (S.phase === 'setup') loadFromUrl(); });
 
 function refreshHalfInfo() {
-  const dur    = +document.getElementById('cfg-dur').value    || 30;
+  const dur = +document.getElementById('cfg-dur').value || 30;
   const halves = +document.getElementById('cfg-halves').value || 2;
-  const perH   = Math.round(dur / halves);
-  document.getElementById('half-info').textContent = `${halves} × ${perH} min per half`;
+  document.getElementById('half-info').textContent = `${halves} × ${Math.round(dur/halves)} min per half`;
   validateSetup();
 }
 
 function loadFromUrl() {
-  // Check for globals injected by a parent iframe (e.g. tour app integration)
-  let names = null;
-  let team  = null;
+  let names = null, team = null;
   if (window.__preloadNames && window.__preloadNames.length) {
-    names = window.__preloadNames;
-    team  = window.__preloadTeam || '';
+    names = window.__preloadNames; team = window.__preloadTeam || '';
   } else {
     const raw = window.location.hash.slice(1) || window.location.search.slice(1);
     if (!raw) return;
-    const params  = new URLSearchParams(raw);
-    const players = params.get('players');
-    team          = params.get('team') || '';
+    const params = new URLSearchParams(raw);
+    const players = params.get('players'); team = params.get('team') || '';
     if (!players) return;
     names = players.split(',').map(n => { try { return decodeURIComponent(n).trim(); } catch(e) { return n.trim(); } }).filter(Boolean);
   }
-
   if (!names || !names.length) return;
-
-  for (const name of names) {
-    S.players.push({ id: S.nextId++, name: name.slice(0, 18), status: 'pitch', pitchTime: 0, pitchStart: null });
-  }
-
+  for (const name of names) S.players.push({ id: S.nextId++, name: name.slice(0,18), status: 'pitch', pitchTime: 0, pitchStart: null });
   const notice = document.getElementById('preload-notice');
-  notice.textContent = `✓ ${names.length} players loaded from ${team ? team + ' ' : ''}squad — tap any pill to toggle Starting ↔ Sub`;
+  notice.textContent = `✓ ${names.length} players loaded from ${team ? team+' ' : ''}squad — tap any pill to toggle Starting ↔ Sub`;
   notice.classList.remove('hidden');
-
-  renderPlayerList();
-  validateSetup();
+  renderPlayerList(); validateSetup();
 }
 
 function setAddStatus(s) {
@@ -677,47 +518,32 @@ function setAddStatus(s) {
 }
 
 function addPlayer() {
-  const inp  = document.getElementById('pname-input');
+  const inp = document.getElementById('pname-input');
   const name = inp.value.trim();
   if (!name) return;
-  S.players.push({
-    id: S.nextId++, name,
-    status: S.addStatus === 'start' ? 'pitch' : 'bench',
-    pitchTime: 0, pitchStart: null,
-  });
-  inp.value = '';
-  inp.focus();
-  renderPlayerList();
-  validateSetup();
+  S.players.push({ id: S.nextId++, name, status: S.addStatus === 'start' ? 'pitch' : 'bench', pitchTime: 0, pitchStart: null });
+  inp.value = ''; inp.focus();
+  renderPlayerList(); validateSetup();
 }
 
 function removePlayer(id) {
   S.players = S.players.filter(p => p.id !== id);
-  renderPlayerList();
-  validateSetup();
+  renderPlayerList(); validateSetup();
 }
 
 function togglePaste() {
   const body = document.getElementById('paste-body');
   const open = body.classList.toggle('hidden');
-  document.querySelector('.btn-paste-toggle').textContent =
-    open ? 'Or paste a list ▸' : 'Or paste a list ▾';
+  document.querySelector('.btn-paste-toggle').textContent = open ? 'Or paste a list ▸' : 'Or paste a list ▾';
   if (!open) document.getElementById('paste-input').focus();
 }
 
 function addPasteList() {
-  const raw = document.getElementById('paste-input').value;
-  const names = raw
-    .split(/[\n,]+/)
-    .map(n => n.trim())
-    .filter(n => n.length > 0);
+  const names = document.getElementById('paste-input').value.split(/[\n,]+/).map(n => n.trim()).filter(Boolean);
   if (!names.length) return;
-  for (const name of names) {
-    S.players.push({ id: S.nextId++, name: name.slice(0, 18), status: 'pitch', pitchTime: 0, pitchStart: null });
-  }
+  for (const name of names) S.players.push({ id: S.nextId++, name: name.slice(0,18), status: 'pitch', pitchTime: 0, pitchStart: null });
   document.getElementById('paste-input').value = '';
-  renderPlayerList();
-  validateSetup();
+  renderPlayerList(); validateSetup();
 }
 
 function renderPlayerList() {
@@ -728,12 +554,8 @@ function renderPlayerList() {
     d.className = 'pli';
     d.innerHTML = `
       <span class="pli-name">${esc(p.name)}</span>
-      <button class="pill ${p.status === 'pitch' ? 'pill-start' : 'pill-sub'}"
-              onclick="togglePlayerStatus(${p.id})">
-        ${p.status === 'pitch' ? 'Starting' : 'Sub'}
-      </button>
-      <button class="btn-remove" onclick="removePlayer(${p.id})">✕</button>
-    `;
+      <button class="pill ${p.status === 'pitch' ? 'pill-start' : 'pill-sub'}" onclick="togglePlayerStatus(${p.id})">${p.status === 'pitch' ? 'Starting' : 'Sub'}</button>
+      <button class="btn-remove" onclick="removePlayer(${p.id})">✕</button>`;
     list.appendChild(d);
   }
 }
@@ -742,201 +564,124 @@ function togglePlayerStatus(id) {
   const p = S.players.find(pl => pl.id === id);
   if (!p) return;
   p.status = p.status === 'pitch' ? 'bench' : 'pitch';
-  renderPlayerList();
-  validateSetup();
+  renderPlayerList(); validateSetup();
 }
 
 function validateSetup() {
-  const n       = +document.getElementById('cfg-on-pitch').value || 9;
-  const starts  = S.players.filter(p => p.status === 'pitch');
-  const subs    = S.players.filter(p => p.status === 'bench');
-  const el      = document.getElementById('setup-status');
-  const btn     = document.getElementById('btn-start-match');
-
-  if (!S.players.length) {
-    el.textContent = 'Add players to your squad'; el.className = ''; btn.disabled = true; return;
-  }
-  if (starts.length !== n) {
-    el.textContent = `Need exactly ${n} starting players (have ${starts.length})`;
-    el.className = 'err'; btn.disabled = true; return;
-  }
-  if (!subs.length) {
-    el.textContent = 'Need at least 1 substitute';
-    el.className = 'err'; btn.disabled = true; return;
-  }
-  el.textContent = `✓ ${starts.length} starters · ${subs.length} subs — ready`;
-  el.className = 'ok'; btn.disabled = false;
+  const n = +document.getElementById('cfg-on-pitch').value || 9;
+  const starts = S.players.filter(p => p.status === 'pitch');
+  const subs   = S.players.filter(p => p.status === 'bench');
+  const el = document.getElementById('setup-status');
+  const btn = document.getElementById('btn-start-match');
+  if (!S.players.length)       { el.textContent = 'Add players to your squad'; el.className = ''; btn.disabled = true; return; }
+  if (starts.length !== n)     { el.textContent = `Need exactly ${n} starting players (have ${starts.length})`; el.className = 'err'; btn.disabled = true; return; }
+  if (!subs.length)            { el.textContent = 'Need at least 1 substitute'; el.className = 'err'; btn.disabled = true; return; }
+  el.textContent = `✓ ${starts.length} starters · ${subs.length} subs — ready`; el.className = 'ok'; btn.disabled = false;
 }
 
 // ══════════════════════════════════════════════════════════
-//  MATCH START
+//  MATCH START / TIMER
 // ══════════════════════════════════════════════════════════
-
 function startMatch() {
   S.totalMin   = +document.getElementById('cfg-dur').value      || 30;
   S.numHalves  = +document.getElementById('cfg-halves').value   || 2;
   S.numOnPitch = +document.getElementById('cfg-on-pitch').value || 9;
-  S.currentHalf = 1;
-  S.halfElapsed = 0;
-  S.phase = 'match';
-
-  show('match-screen');
-  startTimers();
-  resumeTimer();
-  renderMatch();
+  S.currentHalf = 1; S.halfElapsed = 0; S.phase = 'match';
+  show('match-screen'); startTimers(); resumeTimer(); renderMatch();
 }
-
-// ══════════════════════════════════════════════════════════
-//  TIMER ENGINE
-// ══════════════════════════════════════════════════════════
 
 function tick() {
-  const now   = Date.now();
-  const delta = (now - S.lastTick) / 1000;
-  S.halfElapsed += delta;
-  S.lastTick = now;
-  renderTimerBar();
-  renderCards();
-  renderSugg();
+  const now = Date.now(); const delta = (now - S.lastTick) / 1000;
+  S.halfElapsed += delta; S.lastTick = now;
+  renderTimerBar(); renderCards(); renderSugg();
 }
-
-function pauseTimer() {
-  if (S.interval) { clearInterval(S.interval); S.interval = null; }
-  S.lastTick = null;
-  commitAll();
-}
-
-function resumeTimer() {
-  S.lastTick = Date.now();
-  S.interval = setInterval(tick, 250);
-}
+function pauseTimer()  { if (S.interval) { clearInterval(S.interval); S.interval = null; } S.lastTick = null; commitAll(); }
+function resumeTimer() { S.lastTick = Date.now(); S.interval = setInterval(tick, 250); }
 
 function togglePause() {
-  if (S.phase === 'match') {
-    S.phase = 'paused';
-    pauseTimer();
-  } else if (S.phase === 'paused') {
-    S.phase = 'match';
-    startTimers();
-    resumeTimer();
-  }
+  if (S.phase === 'match') { S.phase = 'paused'; pauseTimer(); }
+  else if (S.phase === 'paused') { S.phase = 'match'; startTimers(); resumeTimer(); }
   renderTimerBar();
 }
-
-function doHalfTime() {
-  pauseTimer();
-  S.phase = 'halftime';
-  renderTimerBar();
-  renderCards();
-}
-
-function startNextHalf() {
-  S.currentHalf++;
-  S.halfElapsed = 0;
-  S.phase = 'match';
-  startTimers();
-  resumeTimer();
-  renderTimerBar();
-  renderCards();
-}
-
-function doEndMatch() {
-  pauseTimer();
-  S.phase = 'ended';
-  renderEnd();
-  show('end-screen');
-}
+function doHalfTime()  { pauseTimer(); S.phase = 'halftime'; renderTimerBar(); renderCards(); }
+function startNextHalf() { S.currentHalf++; S.halfElapsed = 0; S.phase = 'match'; startTimers(); resumeTimer(); renderTimerBar(); renderCards(); }
+function doEndMatch()  { pauseTimer(); S.phase = 'ended'; renderEnd(); show('end-screen'); }
 
 // ══════════════════════════════════════════════════════════
 //  MATCH RENDER
 // ══════════════════════════════════════════════════════════
-
-function renderMatch() {
-  renderTimerBar();
-  renderCards();
-  renderSugg();
-}
+function renderMatch() { renderTimerBar(); renderCards(); renderSugg(); }
 
 function renderTimerBar() {
   const isLast = S.currentHalf >= S.numHalves;
   const timeUp = S.halfElapsed >= halfDurSec();
-
   document.getElementById('timer-half').textContent = halfLabel(S.currentHalf);
-
   const td = document.getElementById('timer-time');
   td.textContent = fmt(S.halfElapsed);
-  td.className = 'timer-time' + (S.phase === 'paused' ? ' warn' : (timeUp ? ' up' : ''));
-
-  const htBanner = document.getElementById('ht-banner');
-  htBanner.classList.toggle('hidden', S.phase !== 'halftime');
-
+  td.className = 'timer-time' + (S.phase === 'paused' ? ' warn' : timeUp ? ' up' : '');
+  document.getElementById('ht-banner').classList.toggle('hidden', S.phase !== 'halftime');
   const btns = document.getElementById('timer-btns');
   btns.innerHTML = '';
-
   if (S.phase === 'halftime') {
-    if (!isLast) {
-      addBtn(btns, 'tbtn-next', `Start ${halfLabel(S.currentHalf + 1)} →`, startNextHalf);
-    } else {
-      addBtn(btns, 'tbtn-end', 'End Match', doEndMatch);
-    }
+    if (!isLast) addBtn(btns, 'tbtn-next', `Start ${halfLabel(S.currentHalf+1)} →`, startNextHalf);
+    else         addBtn(btns, 'tbtn-end',  'End Match', doEndMatch);
     return;
   }
-
-  // Pause / Resume
   addBtn(btns, 'tbtn-pause', S.phase === 'paused' ? '▶ Resume' : '⏸ Pause', togglePause);
-
   if (S.phase !== 'paused') {
-    if (!isLast) {
-      addBtn(btns, 'tbtn-ht', 'Half Time', doHalfTime);
-    } else {
-      const b = addBtn(btns, 'tbtn-end', 'End Match', doEndMatch);
-      if (!timeUp) b.style.opacity = '0.5';
-    }
+    if (!isLast) { addBtn(btns, 'tbtn-ht', 'Half Time', doHalfTime); }
+    else { const b = addBtn(btns, 'tbtn-end', 'End Match', doEndMatch); if (!timeUp) b.style.opacity = '0.5'; }
   }
 }
 
 function addBtn(container, cls, label, fn) {
-  const b = document.createElement('button');
-  b.className = cls;
-  b.textContent = label;
-  b.onclick = fn;
-  container.appendChild(b);
-  return b;
+  const b = document.createElement('button'); b.className = cls; b.textContent = label; b.onclick = fn; container.appendChild(b); return b;
 }
 
 function renderCards() {
   const avg    = avgPitchMs();
   const thresh = avg * 0.75;
-  const hasSel = S.selPitchId !== null;
+  const hasSel  = S.selPitch.length > 0;
+  const needMore = hasSel && S.selBench.length < S.selPitch.length;
 
   function card(p) {
-    const ms        = pitchTime(p);
-    const eligible  = p.status !== 'injury_perm';
-    const needsTime = eligible && avg > 0 && ms < thresh && p.status !== 'pitch';
-    const sl        = { pitch: 'On Pitch', bench: 'Bench', injury_temp: 'Injured', injury_perm: 'Off (Injured)' };
+    const ms       = pitchTime(p);
+    const eligible = p.status !== 'injury_perm';
+    const sl = { pitch:'On Pitch', bench:'Bench', injury_temp:'Injured', injury_perm:'Off (Injured)' };
 
-    const isSelected = p.status === 'pitch' && S.selPitchId === p.id;
-    const isInvite   = hasSel && (p.status === 'bench' || p.status === 'injury_temp');
+    const pitchIdx = S.selPitch.indexOf(p.id);
+    const benchIdx = S.selBench.indexOf(p.id);
+    const isGoingOff = pitchIdx >= 0;
+    const isComingOn = benchIdx >= 0;
+    const isInvite   = needMore && !isComingOn && (p.status === 'bench' || p.status === 'injury_temp');
+    const needsTime  = eligible && avg > 0 && ms < thresh && p.status !== 'pitch' && !isComingOn;
+    const selNum     = isGoingOff ? pitchIdx + 1 : isComingOn ? benchIdx + 1 : null;
+
+    let cls = `pcard s-${p.status}`;
+    if (isGoingOff) cls += ' going-off';
+    if (isComingOn) cls += ' coming-on';
+    if (isInvite)   cls += ' invite';
 
     const d = document.createElement('div');
-    let cls = `pcard s-${p.status}`;
-    if (isSelected) cls += ' selected';
-    if (isInvite)   cls += ' invite';
     d.className = cls;
-
     d.innerHTML = `
       <div class="pcard-top"><span class="pdot"></span><span class="pstatus">${sl[p.status]}</span></div>
       <div class="pname">${esc(p.name)}</div>
       <div class="ptime">${fmtMs(ms)}</div>
       ${needsTime ? '<div class="pflag">Needs time</div>' : ''}
-    `;
+      ${selNum   ? `<div class="psel-badge">${selNum}</div>` : ''}`;
 
     if (p.status === 'pitch') {
       d.onclick = () => selectPitchPlayer(p.id);
-    } else if (p.status === 'bench' || p.status === 'injury_temp') {
+    } else if (p.status === 'bench') {
       d.onclick = () => tapBenchPlayer(p.id);
+    } else if (p.status === 'injury_temp') {
+      // If a sub is in progress, treat as bench; otherwise offer uninjure
+      d.onclick = () => (S.selPitch.length > 0 && S.selBench.length < S.selPitch.length)
+        ? tapBenchPlayer(p.id) : openUninjure(p.id);
+    } else if (p.status === 'injury_perm') {
+      d.onclick = () => openUninjure(p.id);
     }
-
     return d;
   }
 
@@ -949,48 +694,44 @@ function renderCards() {
   fill('grid-injured', injured.map(card));
   document.getElementById('injured-section').classList.toggle('hidden', !injured.length);
 
-  // Selection hint bar
+  // Hint bar
   const hint = document.getElementById('select-hint');
-  if (hasSel) {
-    const sel = getPlayer(S.selPitchId);
-    document.getElementById('hint-text').textContent =
-      sel ? `Tap a bench player to bring them on for ${sel.name}` : 'Tap a bench player';
-    hint.classList.remove('hidden');
-  } else {
-    hint.classList.add('hidden');
-  }
+  if (!hasSel) { hint.classList.add('hidden'); return; }
+  const remaining = S.selPitch.length - S.selBench.length;
+  document.getElementById('hint-text').textContent = remaining > 0
+    ? `${S.selPitch.length} going off — tap ${remaining} bench player${remaining > 1 ? 's' : ''} to bring on`
+    : 'Ready…';
+  hint.classList.remove('hidden');
 }
 
-function fill(id, nodes) {
-  const g = document.getElementById(id);
-  g.innerHTML = '';
-  nodes.forEach(n => g.appendChild(n));
-}
+function fill(id, nodes) { const g = document.getElementById(id); g.innerHTML = ''; nodes.forEach(n => g.appendChild(n)); }
 
 // ══════════════════════════════════════════════════════════
-//  TAP-TO-SUB
+//  TAP-TO-SUB (multi-select)
 // ══════════════════════════════════════════════════════════
-
 function selectPitchPlayer(id) {
-  // Tap same card again to deselect
-  S.selPitchId = S.selPitchId === id ? null : id;
+  const idx = S.selPitch.indexOf(id);
+  if (idx >= 0) S.selPitch.splice(idx, 1);
+  else S.selPitch.push(id);
+  S.selBench = [];  // Reset bench whenever pitch selection changes
   renderCards();
 }
 
 function tapBenchPlayer(id) {
-  if (!S.selPitchId) return;
-  openModal(id, S.selPitchId);
+  if (!S.selPitch.length) return;
+  const idx = S.selBench.indexOf(id);
+  if (idx >= 0) { S.selBench.splice(idx, 1); renderCards(); return; }
+  if (S.selBench.length >= S.selPitch.length) return;
+  S.selBench.push(id);
+  renderCards();
+  if (S.selBench.length === S.selPitch.length) openSubModal();
 }
 
-function clearSelection() {
-  S.selPitchId = null;
-  renderCards();
-}
+function clearSelection() { S.selPitch = []; S.selBench = []; renderCards(); }
 
 // ══════════════════════════════════════════════════════════
 //  SUGGESTIONS
 // ══════════════════════════════════════════════════════════
-
 function toggleSugg() {
   S.suggOpen = !S.suggOpen;
   document.getElementById('sugg-chev').textContent = S.suggOpen ? '▼' : '▶';
@@ -1001,109 +742,108 @@ function renderSugg() {
   const body = document.getElementById('sugg-body');
   body.innerHTML = '';
   if (!S.suggOpen) return;
-
-  const bench = S.players
-    .filter(p => p.status === 'bench' || p.status === 'injury_temp')
-    .sort((a, b) => pitchTime(a) - pitchTime(b));
-
-  const onPitch = S.players
-    .filter(p => p.status === 'pitch')
-    .sort((a, b) => pitchTime(b) - pitchTime(a));
-
+  const bench   = S.players.filter(p => p.status === 'bench' || p.status === 'injury_temp').sort((a,b) => pitchTime(a) - pitchTime(b));
+  const onPitch = S.players.filter(p => p.status === 'pitch').sort((a,b) => pitchTime(b) - pitchTime(a));
   if (!bench.length || !onPitch.length) {
-    const e = document.createElement('div');
-    e.className = 'sugg-empty';
+    const e = document.createElement('div'); e.className = 'sugg-empty';
     e.textContent = bench.length ? 'No pitch players to swap.' : 'No bench players available.';
-    body.appendChild(e);
-    return;
+    body.appendChild(e); return;
   }
-
   const count = Math.min(bench.length, onPitch.length);
   for (let i = 0; i < count; i++) {
     const bp = bench[i], pp = onPitch[i];
     const inj = bp.status === 'injury_temp' ? ' 🤕' : '';
-    const d = document.createElement('div');
-    d.className = 'sugg-card';
+    const d = document.createElement('div'); d.className = 'sugg-card';
     d.innerHTML = `
       <div class="sugg-text">
-        <span class="on">↑ ${esc(bp.name)}${inj}</span>
-        <span class="t"> (${fmtMs(pitchTime(bp))})</span>
+        <span class="on">↑ ${esc(bp.name)}${inj}</span><span class="t"> (${fmtMs(pitchTime(bp))})</span>
         &nbsp;for&nbsp;
-        <span class="off">↓ ${esc(pp.name)}</span>
-        <span class="t"> (${fmtMs(pitchTime(pp))})</span>
+        <span class="off">↓ ${esc(pp.name)}</span><span class="t"> (${fmtMs(pitchTime(pp))})</span>
       </div>
-      <button class="btn-quick-sub" onclick="quickSub(${bp.id},${pp.id})">Sub →</button>
-    `;
+      <button class="btn-quick-sub" onclick="quickSub(${bp.id},${pp.id})">Sub →</button>`;
     body.appendChild(d);
   }
 }
 
-function quickSub(benchId, pitchId) { openModal(benchId, pitchId); }
+function quickSub(benchId, pitchId) { S.selPitch = [pitchId]; S.selBench = [benchId]; openSubModal(); }
 
 // ══════════════════════════════════════════════════════════
-//  MODAL
+//  SUB MODAL
 // ══════════════════════════════════════════════════════════
-
-function openModal(benchId, pitchId) {
-  S.modal = { benchId: benchId || null, pitchId: pitchId || null, injType: null };
-  renderModal();
+function openSubModal() {
+  S.modal.pairs = S.selPitch.map((pitchId, i) => ({ pitchId, benchId: S.selBench[i], injType: null }));
+  renderSubModal();
   document.getElementById('modal-overlay').classList.remove('hidden');
 }
 
 function closeModal() {
   document.getElementById('modal-overlay').classList.add('hidden');
-  S.selPitchId = null;
+  S.selPitch = []; S.selBench = [];
   renderCards();
 }
 
-function handleOverlayClick(e) {
-  if (e.target === document.getElementById('modal-overlay')) closeModal();
-}
+function handleOverlayClick(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
 
-function setInj(type) { S.modal.injType = type; renderModal(); }
+function setPairInj(idx, type) { S.modal.pairs[idx].injType = type; renderSubModal(); }
 
-function renderModal() {
-  const { benchId, pitchId, injType } = S.modal;
-  const bp = benchId ? getPlayer(benchId) : null;
-  const pp = pitchId ? getPlayer(pitchId) : null;
-
-  document.getElementById('sub-on-name').textContent  = bp ? '↑ ' + bp.name : '—';
-  document.getElementById('sub-off-name').textContent = pp ? '↓ ' + pp.name : '—';
-
-  document.getElementById('inj-none').className = 'inj-opt' + (!injType ? ' a-none' : '');
-  document.getElementById('inj-temp').className = 'inj-opt' + (injType === 'temp' ? ' a-temp' : '');
-  document.getElementById('inj-perm').className = 'inj-opt' + (injType === 'perm' ? ' a-perm' : '');
-
-  document.getElementById('btn-confirm').disabled = !(benchId && pitchId);
+function renderSubModal() {
+  const { pairs } = S.modal;
+  document.getElementById('modal-title').textContent =
+    pairs.length === 1 ? 'Confirm Substitution' : `Confirm ${pairs.length} Substitutions`;
+  const body = document.getElementById('modal-body');
+  body.innerHTML = '';
+  for (let i = 0; i < pairs.length; i++) {
+    const { pitchId, benchId, injType } = pairs[i];
+    const bp = getPlayer(benchId), pp = getPlayer(pitchId);
+    if (!bp || !pp) continue;
+    const row = document.createElement('div'); row.className = 'sub-pair-row';
+    row.innerHTML = `
+      <div class="sub-pair-names">
+        <span class="sub-on">↑ ${esc(bp.name)}</span><span class="sub-for"> for </span><span class="sub-off">↓ ${esc(pp.name)}</span>
+      </div>
+      <div class="inj-compact">
+        <button class="inj-opt ${!injType ? 'a-none' : ''}" onclick="setPairInj(${i},null)">—</button>
+        <button class="inj-opt ${injType==='temp' ? 'a-temp' : ''}" onclick="setPairInj(${i},'temp')">Tmp</button>
+        <button class="inj-opt ${injType==='perm' ? 'a-perm' : ''}" onclick="setPairInj(${i},'perm')">Off</button>
+      </div>`;
+    body.appendChild(row);
+  }
 }
 
 function confirmSub() {
-  const { benchId, pitchId, injType } = S.modal;
-  if (!benchId || !pitchId) return;
-
-  const bp = getPlayer(benchId);
-  const pp = getPlayer(pitchId);
-
-  // Commit the outgoing player's time
-  if (pp.pitchStart !== null) {
-    pp.pitchTime += Date.now() - pp.pitchStart;
-    pp.pitchStart = null;
+  for (const { pitchId, benchId, injType } of S.modal.pairs) {
+    const bp = getPlayer(benchId), pp = getPlayer(pitchId);
+    if (!bp || !pp) continue;
+    if (pp.pitchStart !== null) { pp.pitchTime += Date.now() - pp.pitchStart; pp.pitchStart = null; }
+    pp.status = injType === 'perm' ? 'injury_perm' : injType === 'temp' ? 'injury_temp' : 'bench';
+    bp.status = 'pitch';
+    if (S.phase === 'match') bp.pitchStart = Date.now();
   }
-  pp.status = injType === 'perm' ? 'injury_perm' : injType === 'temp' ? 'injury_temp' : 'bench';
+  S.selPitch = []; S.selBench = [];
+  closeModal(); renderSugg();
+}
 
-  // Bring on the bench/injured player
-  bp.status = 'pitch';
-  if (S.phase === 'match') bp.pitchStart = Date.now();
-
-  S.selPitchId = null;
-  closeModal();
-  renderSugg();
+// ══════════════════════════════════════════════════════════
+//  UNINJURE MODAL
+// ══════════════════════════════════════════════════════════
+function openUninjure(id) {
+  const p = getPlayer(id); if (!p) return;
+  S.pendingUninjureId = id;
+  const label = p.status === 'injury_perm' ? 'permanently injured off' : 'temporarily injured';
+  document.getElementById('uninjure-text').textContent = `${p.name} is currently ${label}. Bring them back to the bench?`;
+  document.getElementById('uninjure-overlay').classList.remove('hidden');
+}
+function closeUninjure() { document.getElementById('uninjure-overlay').classList.add('hidden'); S.pendingUninjureId = null; }
+function handleUninjureOverlayClick(e) { if (e.target === document.getElementById('uninjure-overlay')) closeUninjure(); }
+function confirmUninjure() {
+  const p = getPlayer(S.pendingUninjureId);
+  if (p) { p.status = 'bench'; p.pitchStart = null; }
+  closeUninjure(); renderCards(); renderSugg();
 }
 
 // ══════════════════════════════════════════════════════════
 //  SETTINGS MODAL
 // ══════════════════════════════════════════════════════════
-
 function openSettings() {
   document.getElementById('set-dur').value      = S.totalMin;
   document.getElementById('set-halves').value   = S.numHalves;
@@ -1111,105 +851,56 @@ function openSettings() {
   updateSettingsNote();
   document.getElementById('settings-overlay').classList.remove('hidden');
 }
-
-function closeSettings() {
-  document.getElementById('settings-overlay').classList.add('hidden');
-}
-
-function handleSettingsOverlayClick(e) {
-  if (e.target === document.getElementById('settings-overlay')) closeSettings();
-}
-
+function closeSettings() { document.getElementById('settings-overlay').classList.add('hidden'); }
+function handleSettingsOverlayClick(e) { if (e.target === document.getElementById('settings-overlay')) closeSettings(); }
 function updateSettingsNote() {
-  const dur    = +document.getElementById('set-dur').value    || S.totalMin;
+  const dur = +document.getElementById('set-dur').value || S.totalMin;
   const halves = +document.getElementById('set-halves').value || S.numHalves;
-  const perH   = Math.round(dur / halves);
-  document.getElementById('settings-note').textContent =
-    `${halves} × ${perH} min per half · elapsed time & pitch times unchanged`;
+  document.getElementById('settings-note').textContent = `${halves} × ${Math.round(dur/halves)} min per half · elapsed time & pitch times unchanged`;
 }
-
 function saveSettings() {
-  const dur      = +document.getElementById('set-dur').value      || S.totalMin;
-  const halves   = +document.getElementById('set-halves').value   || S.numHalves;
-  const onPitch  = +document.getElementById('set-on-pitch').value || S.numOnPitch;
-  S.totalMin   = Math.max(5,  Math.min(120, dur));
-  S.numHalves  = Math.max(1,  Math.min(4,   halves));
-  S.numOnPitch = Math.max(1,  Math.min(15,  onPitch));
-  closeSettings();
-  renderTimerBar();
-  renderCards();
-  renderSugg();
+  S.totalMin   = Math.max(5,  Math.min(120, +document.getElementById('set-dur').value      || S.totalMin));
+  S.numHalves  = Math.max(1,  Math.min(4,   +document.getElementById('set-halves').value   || S.numHalves));
+  S.numOnPitch = Math.max(1,  Math.min(15,  +document.getElementById('set-on-pitch').value || S.numOnPitch));
+  closeSettings(); renderTimerBar(); renderCards(); renderSugg();
 }
 
 // ══════════════════════════════════════════════════════════
 //  END SCREEN
 // ══════════════════════════════════════════════════════════
-
 function renderEnd() {
-  const totalMs = totalDurMs();
+  const totalMs  = totalDurMs();
   const eligible = S.players.filter(p => p.status !== 'injury_perm');
-  const avgMs    = eligible.length ? eligible.reduce((s, p) => s + p.pitchTime, 0) / eligible.length : 0;
-
-  document.getElementById('end-sub').textContent =
-    `${S.totalMin} min · ${S.numHalves} halves · ${S.players.length} players`;
-
-  const tbody = document.getElementById('end-body');
-  tbody.innerHTML = '';
-
-  const sorted = [...S.players].sort((a, b) => b.pitchTime - a.pitchTime);
-
-  for (const p of sorted) {
-    const pct     = Math.round((p.pitchTime / totalMs) * 100);
-    const isPerm  = p.status === 'injury_perm';
-    const isLow   = !isPerm && avgMs > 0 && p.pitchTime < avgMs * 0.75;
-    const barPct  = Math.min(100, pct);
-
+  const avgMs    = eligible.length ? eligible.reduce((s,p) => s + p.pitchTime, 0) / eligible.length : 0;
+  document.getElementById('end-sub').textContent = `${S.totalMin} min · ${S.numHalves} halves · ${S.players.length} players`;
+  const tbody = document.getElementById('end-body'); tbody.innerHTML = '';
+  for (const p of [...S.players].sort((a,b) => b.pitchTime - a.pitchTime)) {
+    const pct = Math.round((p.pitchTime / totalMs) * 100);
+    const isPerm = p.status === 'injury_perm';
+    const isLow  = !isPerm && avgMs > 0 && p.pitchTime < avgMs * 0.75;
     const tr = document.createElement('tr');
     if (isLow)  tr.className = 'erow-low';
     if (isPerm) tr.className = 'erow-perm';
-
     tr.innerHTML = `
       <td>${esc(p.name)}${isPerm ? '<span class="inj-tag">(injured off)</span>' : ''}</td>
       <td>${fmtMs(p.pitchTime)}${isLow ? '<span class="flag-low">⚑</span>' : ''}</td>
-      <td>
-        ${pct}%
-        <div class="bar-wrap"><div class="bar-fill ${isLow ? 'low' : ''}" style="width:${barPct}%"></div></div>
-      </td>
-    `;
+      <td>${pct}%<div class="bar-wrap"><div class="bar-fill ${isLow?'low':''}" style="width:${Math.min(100,pct)}%"></div></div></td>`;
     tbody.appendChild(tr);
   }
 }
 
 function newMatch() {
   if (S.interval) clearInterval(S.interval);
-  Object.assign(S, {
-    phase: 'setup', players: [], nextId: 1, addStatus: 'start',
-    currentHalf: 1, halfElapsed: 0, lastTick: null, interval: null, suggOpen: true,
-    selPitchId: null,
-    modal: { benchId: null, pitchId: null, injType: null },
-  });
+  Object.assign(S, { phase:'setup', players:[], nextId:1, addStatus:'start', currentHalf:1, halfElapsed:0, lastTick:null, interval:null, suggOpen:true, selPitch:[], selBench:[], modal:{pairs:[]}, pendingUninjureId:null });
   document.getElementById('player-list').innerHTML = '';
-  setAddStatus('start');
-  validateSetup();
-  show('setup-screen');
-}
-
-// ══════════════════════════════════════════════════════════
-//  SCREEN SWITCHER
-// ══════════════════════════════════════════════════════════
-
-function show(id) {
-  for (const s of document.querySelectorAll('.screen')) s.classList.remove('active');
-  document.getElementById(id).classList.add('active');
+  setAddStatus('start'); validateSetup(); show('setup-screen');
 }
 
 // ══════════════════════════════════════════════════════════
 //  HELPERS
 // ══════════════════════════════════════════════════════════
-
-function esc(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+function show(id) { for (const s of document.querySelectorAll('.screen')) s.classList.remove('active'); document.getElementById(id).classList.add('active'); }
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 </script>
 </body>
 </html>
