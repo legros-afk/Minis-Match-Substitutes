@@ -204,8 +204,20 @@ input  { font-family: inherit; }
 }
 .sugg-empty { font-size: 0.78rem; color: var(--text-dim); }
 
+/* Selection hint bar */
+.select-hint {
+  flex-shrink: 0; display: flex; align-items: center; gap: 8px;
+  background: var(--yellow); color: #000;
+  padding: 9px 12px; font-size: 0.8rem; font-weight: 700;
+}
+.select-hint span { flex: 1; }
+.btn-hint-cancel {
+  background: rgba(0,0,0,0.15); color: #000; border-radius: 6px;
+  padding: 4px 10px; font-size: 0.78rem; font-weight: 800;
+}
+
 /* Players area */
-.players-wrap { flex: 1; overflow-y: auto; padding: 10px 10px 80px; }
+.players-wrap { flex: 1; overflow-y: auto; padding: 10px 10px 20px; }
 .group-label {
   font-size: 0.62rem; font-weight: 800; text-transform: uppercase;
   letter-spacing: 0.1em; color: var(--text-dim); padding: 6px 4px 5px;
@@ -220,12 +232,31 @@ input  { font-family: inherit; }
 .pcard {
   border-radius: 10px; padding: 10px 10px 9px;
   border: 2px solid transparent; position: relative;
-  user-select: none;
+  user-select: none; cursor: pointer;
+  transition: border-color 0.12s, box-shadow 0.12s, transform 0.1s;
 }
+.pcard:active { transform: scale(0.95); }
 .pcard.s-pitch       { background: var(--green-bg);  border-color: var(--green-dim); }
 .pcard.s-bench       { background: var(--surface);   border-color: var(--border); }
 .pcard.s-injury_temp { background: var(--orange-bg); border-color: var(--orange); }
-.pcard.s-injury_perm { background: var(--red-bg);    border-color: var(--red-dim); opacity: 0.55; }
+.pcard.s-injury_perm { background: var(--red-bg);    border-color: var(--red-dim); opacity: 0.55; cursor: default; }
+
+/* Selected pitch player — yellow ring */
+.pcard.s-pitch.selected {
+  border-color: var(--yellow);
+  box-shadow: 0 0 0 3px rgba(251,191,36,0.3);
+}
+
+/* Bench cards pulse when a pitch player is selected */
+.pcard.s-bench.invite,
+.pcard.s-injury_temp.invite {
+  border-color: var(--blue);
+  animation: pulse-invite 1.4s ease-in-out infinite;
+}
+@keyframes pulse-invite {
+  0%,100% { box-shadow: 0 0 0 0 rgba(96,165,250,0.5); }
+  50%      { box-shadow: 0 0 0 7px rgba(96,165,250,0); }
+}
 
 .pcard-top { display: flex; align-items: center; gap: 4px; margin-bottom: 3px; }
 .pdot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
@@ -253,20 +284,6 @@ input  { font-family: inherit; }
   border-radius: 99px; letter-spacing: 0.03em;
 }
 
-/* Make-sub bar */
-.sub-bar {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  padding: 8px 14px calc(8px + env(safe-area-inset-bottom));
-  background: linear-gradient(transparent, var(--bg) 45%);
-  pointer-events: none;
-}
-.btn-make-sub {
-  pointer-events: all;
-  width: 100%; background: var(--blue); color: #fff;
-  border-radius: 12px; padding: 15px; font-size: 1rem;
-  font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em;
-}
-
 /* ════════════════════════════════════
    MODAL
 ════════════════════════════════════ */
@@ -282,22 +299,15 @@ input  { font-family: inherit; }
   max-height: 85dvh; overflow-y: auto;
 }
 .modal-title { font-size: 1rem; font-weight: 800; text-align: center; margin-bottom: 16px; }
-.modal-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.mcol-title {
-  font-size: 0.62rem; font-weight: 800; text-transform: uppercase;
-  letter-spacing: 0.08em; color: var(--text-dim);
-  text-align: center; margin-bottom: 8px;
+
+/* Sub summary */
+.sub-summary {
+  background: var(--surface2); border-radius: 12px; padding: 16px;
+  text-align: center; margin-bottom: 14px;
 }
-.mpbtn {
-  display: block; width: 100%; padding: 11px 8px; border-radius: 8px;
-  font-size: 0.88rem; font-weight: 700; text-align: center;
-  background: var(--surface2); color: var(--text);
-  border: 2px solid transparent; margin-bottom: 6px;
-  transition: all 0.1s;
-}
-.mpbtn.sel-on  { background: var(--green-bg); border-color: var(--green); color: var(--green); }
-.mpbtn.sel-off { background: var(--red-bg);   border-color: var(--red);   color: var(--red); }
-.mpbtn:disabled { opacity: 0.3; }
+.sub-on  { font-size: 1.1rem; font-weight: 800; color: var(--green); }
+.sub-for { font-size: 0.75rem; color: var(--text-dim); margin: 5px 0; }
+.sub-off { font-size: 1.1rem; font-weight: 800; color: var(--red); }
 
 /* Injury selector */
 .inj-row { margin: 12px 0; background: var(--surface2); border-radius: 10px; padding: 12px; }
@@ -441,6 +451,12 @@ input  { font-family: inherit; }
     <div class="sugg-body" id="sugg-body"></div>
   </div>
 
+  <!-- Appears when a pitch player is selected -->
+  <div class="select-hint hidden" id="select-hint">
+    <span id="hint-text">Tap a bench player to bring them on</span>
+    <button class="btn-hint-cancel" onclick="clearSelection()">Cancel</button>
+  </div>
+
   <div class="players-wrap" id="players-wrap">
     <div class="group-label">On Pitch</div>
     <div class="cards-grid" id="grid-pitch"></div>
@@ -452,24 +468,16 @@ input  { font-family: inherit; }
     </div>
   </div>
 
-  <div class="sub-bar">
-    <button class="btn-make-sub" onclick="openModal()">⇄ Make Substitution</button>
-  </div>
 </div>
 
-<!-- ══════ MODAL ══════ -->
+<!-- ══════ CONFIRM SUB MODAL ══════ -->
 <div class="modal-overlay hidden" id="modal-overlay" onclick="handleOverlayClick(event)">
   <div class="modal-sheet" onclick="event.stopPropagation()">
-    <div class="modal-title">Make Substitution</div>
-    <div class="modal-cols">
-      <div>
-        <div class="mcol-title">↑ Coming On</div>
-        <div id="modal-bench"></div>
-      </div>
-      <div>
-        <div class="mcol-title">↓ Going Off</div>
-        <div id="modal-pitch"></div>
-      </div>
+    <div class="modal-title">Confirm Substitution</div>
+    <div class="sub-summary" id="sub-summary">
+      <div class="sub-on"  id="sub-on-name">—</div>
+      <div class="sub-for">coming on for</div>
+      <div class="sub-off" id="sub-off-name">—</div>
     </div>
     <div class="inj-row">
       <div class="inj-label">Injury (going-off player)?</div>
@@ -481,7 +489,7 @@ input  { font-family: inherit; }
     </div>
     <div class="modal-actions">
       <button class="btn-modal-cancel"  onclick="closeModal()">Cancel</button>
-      <button class="btn-modal-confirm" id="btn-confirm" onclick="confirmSub()" disabled>Confirm ✓</button>
+      <button class="btn-modal-confirm" id="btn-confirm" onclick="confirmSub()">Confirm ✓</button>
     </div>
   </div>
 </div>
@@ -557,6 +565,9 @@ const S = {
   lastTick: null,
   interval: null,
   suggOpen: true,
+
+  // Tap-to-sub selection
+  selPitchId: null,
 
   // Modal
   modal: { benchId: null, pitchId: null, injType: null },
@@ -878,7 +889,6 @@ function renderTimerBar() {
     if (!isLast) {
       addBtn(btns, 'tbtn-ht', 'Half Time', doHalfTime);
     } else {
-      // Last half — End Match (prominent once time is up)
       const b = addBtn(btns, 'tbtn-end', 'End Match', doEndMatch);
       if (!timeUp) b.style.opacity = '0.5';
     }
@@ -895,8 +905,9 @@ function addBtn(container, cls, label, fn) {
 }
 
 function renderCards() {
-  const avg   = avgPitchMs();
+  const avg    = avgPitchMs();
   const thresh = avg * 0.75;
+  const hasSel = S.selPitchId !== null;
 
   function card(p) {
     const ms        = pitchTime(p);
@@ -904,14 +915,28 @@ function renderCards() {
     const needsTime = eligible && avg > 0 && ms < thresh && p.status !== 'pitch';
     const sl        = { pitch: 'On Pitch', bench: 'Bench', injury_temp: 'Injured', injury_perm: 'Off (Injured)' };
 
+    const isSelected = p.status === 'pitch' && S.selPitchId === p.id;
+    const isInvite   = hasSel && (p.status === 'bench' || p.status === 'injury_temp');
+
     const d = document.createElement('div');
-    d.className = `pcard s-${p.status}`;
+    let cls = `pcard s-${p.status}`;
+    if (isSelected) cls += ' selected';
+    if (isInvite)   cls += ' invite';
+    d.className = cls;
+
     d.innerHTML = `
       <div class="pcard-top"><span class="pdot"></span><span class="pstatus">${sl[p.status]}</span></div>
       <div class="pname">${esc(p.name)}</div>
       <div class="ptime">${fmtMs(ms)}</div>
       ${needsTime ? '<div class="pflag">Needs time</div>' : ''}
     `;
+
+    if (p.status === 'pitch') {
+      d.onclick = () => selectPitchPlayer(p.id);
+    } else if (p.status === 'bench' || p.status === 'injury_temp') {
+      d.onclick = () => tapBenchPlayer(p.id);
+    }
+
     return d;
   }
 
@@ -923,12 +948,43 @@ function renderCards() {
   fill('grid-bench',   bench.map(card));
   fill('grid-injured', injured.map(card));
   document.getElementById('injured-section').classList.toggle('hidden', !injured.length);
+
+  // Selection hint bar
+  const hint = document.getElementById('select-hint');
+  if (hasSel) {
+    const sel = getPlayer(S.selPitchId);
+    document.getElementById('hint-text').textContent =
+      sel ? `Tap a bench player to bring them on for ${sel.name}` : 'Tap a bench player';
+    hint.classList.remove('hidden');
+  } else {
+    hint.classList.add('hidden');
+  }
 }
 
 function fill(id, nodes) {
   const g = document.getElementById(id);
   g.innerHTML = '';
   nodes.forEach(n => g.appendChild(n));
+}
+
+// ══════════════════════════════════════════════════════════
+//  TAP-TO-SUB
+// ══════════════════════════════════════════════════════════
+
+function selectPitchPlayer(id) {
+  // Tap same card again to deselect
+  S.selPitchId = S.selPitchId === id ? null : id;
+  renderCards();
+}
+
+function tapBenchPlayer(id) {
+  if (!S.selPitchId) return;
+  openModal(id, S.selPitchId);
+}
+
+function clearSelection() {
+  S.selPitchId = null;
+  renderCards();
 }
 
 // ══════════════════════════════════════════════════════════
@@ -988,14 +1044,16 @@ function quickSub(benchId, pitchId) { openModal(benchId, pitchId); }
 //  MODAL
 // ══════════════════════════════════════════════════════════
 
-function openModal(presetBench, presetPitch) {
-  S.modal = { benchId: presetBench || null, pitchId: presetPitch || null, injType: null };
+function openModal(benchId, pitchId) {
+  S.modal = { benchId: benchId || null, pitchId: pitchId || null, injType: null };
   renderModal();
   document.getElementById('modal-overlay').classList.remove('hidden');
 }
 
 function closeModal() {
   document.getElementById('modal-overlay').classList.add('hidden');
+  S.selPitchId = null;
+  renderCards();
 }
 
 function handleOverlayClick(e) {
@@ -1005,31 +1063,13 @@ function handleOverlayClick(e) {
 function setInj(type) { S.modal.injType = type; renderModal(); }
 
 function renderModal() {
-  const bench  = S.players.filter(p => p.status === 'bench' || p.status === 'injury_temp');
-  const pitch  = S.players.filter(p => p.status === 'pitch');
   const { benchId, pitchId, injType } = S.modal;
+  const bp = benchId ? getPlayer(benchId) : null;
+  const pp = pitchId ? getPlayer(pitchId) : null;
 
-  const bl = document.getElementById('modal-bench');
-  const pl = document.getElementById('modal-pitch');
-  bl.innerHTML = ''; pl.innerHTML = '';
+  document.getElementById('sub-on-name').textContent  = bp ? '↑ ' + bp.name : '—';
+  document.getElementById('sub-off-name').textContent = pp ? '↓ ' + pp.name : '—';
 
-  for (const p of bench) {
-    const b = document.createElement('button');
-    b.className = 'mpbtn' + (benchId === p.id ? ' sel-on' : '');
-    b.textContent = p.name + (p.status === 'injury_temp' ? ' 🤕' : '');
-    b.onclick = () => { S.modal.benchId = S.modal.benchId === p.id ? null : p.id; renderModal(); };
-    bl.appendChild(b);
-  }
-
-  for (const p of pitch) {
-    const b = document.createElement('button');
-    b.className = 'mpbtn' + (pitchId === p.id ? ' sel-off' : '');
-    b.textContent = p.name;
-    b.onclick = () => { S.modal.pitchId = S.modal.pitchId === p.id ? null : p.id; renderModal(); };
-    pl.appendChild(b);
-  }
-
-  // Injury selector
   document.getElementById('inj-none').className = 'inj-opt' + (!injType ? ' a-none' : '');
   document.getElementById('inj-temp').className = 'inj-opt' + (injType === 'temp' ? ' a-temp' : '');
   document.getElementById('inj-perm').className = 'inj-opt' + (injType === 'perm' ? ' a-perm' : '');
@@ -1054,10 +1094,9 @@ function confirmSub() {
   // Bring on the bench/injured player
   bp.status = 'pitch';
   if (S.phase === 'match') bp.pitchStart = Date.now();
-  // If paused or halftime, pitchStart stays null — set when play resumes
 
+  S.selPitchId = null;
   closeModal();
-  renderCards();
   renderSugg();
 }
 
@@ -1146,6 +1185,7 @@ function newMatch() {
   Object.assign(S, {
     phase: 'setup', players: [], nextId: 1, addStatus: 'start',
     currentHalf: 1, halfElapsed: 0, lastTick: null, interval: null, suggOpen: true,
+    selPitchId: null,
     modal: { benchId: null, pitchId: null, injType: null },
   });
   document.getElementById('player-list').innerHTML = '';
