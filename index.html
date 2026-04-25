@@ -305,12 +305,47 @@ input  { font-family: inherit; }
 .btn-new { margin-top: 24px; background: var(--primary); color: #fff; border-radius: 12px; padding: 18px; font-size: 1.1rem; font-weight: 900; }
 
 .hidden { display: none !important; }
+
+/* ══ TEAM SELECT ══ */
+#team-screen { padding: 16px; gap: 12px; justify-content: center; }
+#team-screen .setup-header { padding-top: 40px; padding-bottom: 24px; }
+.team-btn {
+  width: 100%; background: var(--primary); color: var(--text-on-dark);
+  border-radius: 14px; padding: 22px 20px; text-align: left;
+  cursor: pointer; transition: opacity 0.12s;
+}
+.team-btn:active { opacity: 0.75; }
+.team-btn-name { font-size: 1.5rem; font-weight: 900; letter-spacing: -0.02em; }
+.team-btn-count { font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 3px; font-weight: 600; }
+.team-btn-ghost {
+  width: 100%; background: transparent; color: var(--primary-mid);
+  font-size: 0.9rem; font-weight: 700; padding: 14px;
+  text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
+  border: none; margin-top: 4px;
+}
 </style>
 </head>
 <body>
 
+<!-- ══════ TEAM SELECT ══════ -->
+<div id="team-screen" class="screen active">
+  <div class="setup-header">
+    <h1>🏉 Minis Subs</h1>
+    <p>Woodford RFC · Select your team</p>
+  </div>
+  <button class="team-btn" onclick="loadTeam('knives')">
+    <div class="team-btn-name">Knives</div>
+    <div class="team-btn-count">15 players</div>
+  </button>
+  <button class="team-btn" onclick="loadTeam('forks')">
+    <div class="team-btn-name">Forks</div>
+    <div class="team-btn-count">15 players</div>
+  </button>
+  <button class="team-btn-ghost" onclick="show('setup-screen')">Custom Squad →</button>
+</div>
+
 <!-- ══════ SETUP ══════ -->
-<div id="setup-screen" class="screen active">
+<div id="setup-screen" class="screen">
   <div class="setup-header">
     <h1>🏉 Minis Subs</h1>
     <p>Set up your match before kick-off</p>
@@ -439,6 +474,14 @@ input  { font-family: inherit; }
 
 <script>
 // ══════════════════════════════════════════════════════════
+//  TEAMS
+// ══════════════════════════════════════════════════════════
+const TEAMS = {
+  knives: { name: 'Knives', players: ['Alex','Angelo','Archie','Dominic','Elliot','Fyfe','Harry','Arlo','Henry W','Jacob','James N','Juan','Ollie','Rene','Oscar'] },
+  forks:  { name: 'Forks',  players: ['Ethan','Hayden','Henry H','Henry T','Jack','James V','Reis','Robin','Eli','Seb','Sols','Lewis','Dylan','Seth','Matthew'] },
+};
+
+// ══════════════════════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════════════════════
 const S = {
@@ -516,6 +559,18 @@ function loadFromUrl() {
   notice.textContent = `✓ ${names.length} players loaded from ${team ? team+' ' : ''}squad — tap any pill to toggle Starting ↔ Sub`;
   notice.classList.remove('hidden');
   renderPlayerList(); validateSetup();
+  show('setup-screen');
+}
+
+function loadTeam(key) {
+  const t = TEAMS[key];
+  S.players = []; S.nextId = 1;
+  for (const name of t.players)
+    S.players.push({ id: S.nextId++, name, status: 'pitch', pitchTime: 0, pitchStart: null });
+  const notice = document.getElementById('preload-notice');
+  notice.textContent = `✓ ${t.players.length} players loaded — tap any pill to toggle Starting ↔ Sub`;
+  notice.classList.remove('hidden');
+  renderPlayerList(); validateSetup(); show('setup-screen');
 }
 
 function setAddStatus(s) {
@@ -905,7 +960,7 @@ function newMatch() {
   if (S.interval) clearInterval(S.interval);
   Object.assign(S, { phase:'setup', players:[], nextId:1, addStatus:'start', currentHalf:1, halfElapsed:0, lastTick:null, interval:null, suggOpen:true, selPitch:[], selBench:[], modal:{pairs:[]}, pendingUninjureId:null });
   document.getElementById('player-list').innerHTML = '';
-  setAddStatus('start'); validateSetup(); show('setup-screen');
+  setAddStatus('start'); validateSetup(); show('team-screen');
 }
 
 // ══════════════════════════════════════════════════════════
